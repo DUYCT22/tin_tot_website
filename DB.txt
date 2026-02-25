@@ -1,0 +1,148 @@
+﻿CREATE DATABASE tintot;
+
+\c tintot;
+
+-- USERS
+CREATE TABLE users(
+    id SERIAL PRIMARY KEY,
+    fullname VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    loginname VARCHAR(100),
+    password VARCHAR(255),
+    avatar VARCHAR(255),
+    role INT,
+    online BOOLEAN,
+    createdat TIMESTAMP,
+    status BOOLEAN
+);
+
+-- CATEGORY
+CREATE TABLE categories(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    parentid INT NULL,
+    image VARCHAR(255),
+    createdat TIMESTAMP,
+    createdby INT,
+    updatedat TIMESTAMP,
+    updatedby INT
+);
+
+ALTER TABLE categories
+ADD CONSTRAINT fk_category_parent
+FOREIGN KEY (parentid) REFERENCES categories(id);
+
+ALTER TABLE categories
+ADD CONSTRAINT fk_category_createdby
+FOREIGN KEY (createdby) REFERENCES users(id);
+
+ALTER TABLE categories
+ADD CONSTRAINT fk_category_updatedby
+FOREIGN KEY (updatedby) REFERENCES users(id);
+
+-- LISTINGS
+CREATE TABLE listings(
+    id SERIAL PRIMARY KEY,
+    userid INT,
+    categoryid INT,
+    title TEXT,
+    description TEXT,
+    price NUMERIC(18,2),
+    location VARCHAR(255),
+    status INT,
+    createdat TIMESTAMP,
+    updatedat TIMESTAMP
+);
+
+ALTER TABLE listings ADD FOREIGN KEY (userid) REFERENCES users(id);
+ALTER TABLE listings ADD FOREIGN KEY (categoryid) REFERENCES categories(id);
+
+-- IMAGES
+CREATE TABLE images(
+    id SERIAL PRIMARY KEY,
+    listingid INT,
+    imageurl VARCHAR(500)
+);
+
+ALTER TABLE images ADD FOREIGN KEY (listingid) REFERENCES listings(id);
+
+-- FAVORITES
+CREATE TABLE favorites(
+    id SERIAL PRIMARY KEY,
+    userid INT,
+    listingid INT,
+    createdat TIMESTAMP
+);
+
+ALTER TABLE favorites ADD FOREIGN KEY (userid) REFERENCES users(id);
+ALTER TABLE favorites ADD FOREIGN KEY (listingid) REFERENCES listings(id);
+
+-- FOLLOWS
+CREATE TABLE follows(
+    id SERIAL PRIMARY KEY,
+    followerid INT,
+    sellerid INT,
+    createdat TIMESTAMP
+);
+
+ALTER TABLE follows ADD FOREIGN KEY (followerid) REFERENCES users(id);
+ALTER TABLE follows ADD FOREIGN KEY (sellerid) REFERENCES users(id);
+
+-- MESSAGES
+CREATE TABLE messages(
+    id SERIAL PRIMARY KEY,
+    senderid INT,
+    receiverid INT,
+    listingid INT,
+    content TEXT,
+    sentat TIMESTAMP
+);
+
+ALTER TABLE messages ADD FOREIGN KEY (senderid) REFERENCES users(id);
+ALTER TABLE messages ADD FOREIGN KEY (receiverid) REFERENCES users(id);
+ALTER TABLE messages ADD FOREIGN KEY (listingid) REFERENCES listings(id);
+
+-- NOTIFICATIONS
+CREATE TABLE notifications(
+    id SERIAL PRIMARY KEY,
+    userid INT,
+    relateduserid INT,
+    listingid INT,
+    message TEXT,
+    isread BOOLEAN,
+    createdat TIMESTAMP
+);
+
+ALTER TABLE notifications ADD FOREIGN KEY (userid) REFERENCES users(id);
+ALTER TABLE notifications ADD FOREIGN KEY (relateduserid) REFERENCES users(id);
+ALTER TABLE notifications ADD FOREIGN KEY (listingid) REFERENCES listings(id);
+
+-- RATINGS
+CREATE TABLE ratings(
+    id SERIAL PRIMARY KEY,
+    userid INT,
+    reviewerid INT,
+    score NUMERIC(3,2),
+    comment TEXT,
+    createdat TIMESTAMP
+);
+
+ALTER TABLE ratings ADD FOREIGN KEY (userid) REFERENCES users(id);
+ALTER TABLE ratings ADD FOREIGN KEY (reviewerid) REFERENCES users(id);
+
+-- BANNERS
+CREATE TABLE banners(
+    id SERIAL PRIMARY KEY,
+    link VARCHAR(500),
+    image VARCHAR(500),
+    status BOOLEAN,
+    orders INT,
+    createdat TIMESTAMP,
+    createdby INT,
+    updatedat TIMESTAMP,
+    updatedby INT
+);
+
+ALTER TABLE banners ADD FOREIGN KEY (createdby) REFERENCES users(id);
+ALTER TABLE banners ADD FOREIGN KEY (updatedby) REFERENCES users(id);
