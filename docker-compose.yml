@@ -1,7 +1,7 @@
 ﻿version: '3.8'
 
 services:
-  postgres:
+  db:
     image: postgres:16
     container_name: tintot_postgres
     restart: always
@@ -12,7 +12,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: tintot_api
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=tintotdb;Username=postgres;Password=123456
+    ports:
+      - "5000:8080"
 
 volumes:
-  postgres_data:
+  pgdata:

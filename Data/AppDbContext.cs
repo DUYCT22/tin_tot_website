@@ -46,7 +46,6 @@ namespace Tin_Tot_Website.Data
 
                 entity.HasIndex(x => x.Email).IsUnique();
                 entity.HasIndex(x => x.LoginName).IsUnique();
-
                 entity.Property(x => x.FullName).HasMaxLength(255);
                 entity.Property(x => x.Email).HasMaxLength(255);
                 entity.Property(x => x.Phone).HasMaxLength(50);
