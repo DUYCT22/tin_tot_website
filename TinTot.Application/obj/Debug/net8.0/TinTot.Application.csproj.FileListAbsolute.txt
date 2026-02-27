@@ -13,3 +13,4 @@ D:\Tin_Tot_Web_Pro\TinTot.Application\obj\Debug\net8.0\TinTot.Application.dll
 D:\Tin_Tot_Web_Pro\TinTot.Application\obj\Debug\net8.0\refint\TinTot.Application.dll
 D:\Tin_Tot_Web_Pro\TinTot.Application\obj\Debug\net8.0\TinTot.Application.pdb
 D:\Tin_Tot_Web_Pro\TinTot.Application\obj\Debug\net8.0\ref\TinTot.Application.dll
+D:\Tin_Tot_Web_Pro\TinTot.Application\obj\Debug\net8.0\TinTot.Application.sourcelink.json

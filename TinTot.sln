@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8C031839-7187-480A-8B2B-6ACB65E3BCB8}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinTot.Domain", "TinTot.Domain\TinTot.Domain.csproj", "{E7730A4F-CDB0-1EE4-5E88-45AEA581C4CD}"

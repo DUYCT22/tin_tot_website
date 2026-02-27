@@ -25,7 +25,7 @@
   app:
     build:
       context: .
-      dockerfile: Tin_Tot_Website/Dockerfile
+      dockerfile: Dockerfile
     container_name: tintot_api
     restart: always
     depends_on:

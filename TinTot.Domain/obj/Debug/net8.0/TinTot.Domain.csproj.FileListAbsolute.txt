@@ -20,3 +20,4 @@ D:\Tin_Tot_Web_Pro\TinTot.Domain\obj\Debug\net8.0\TinTot.Domain.dll
 D:\Tin_Tot_Web_Pro\TinTot.Domain\obj\Debug\net8.0\refint\TinTot.Domain.dll
 D:\Tin_Tot_Web_Pro\TinTot.Domain\obj\Debug\net8.0\TinTot.Domain.pdb
 D:\Tin_Tot_Web_Pro\TinTot.Domain\obj\Debug\net8.0\ref\TinTot.Domain.dll
+D:\Tin_Tot_Web_Pro\TinTot.Domain\obj\Debug\net8.0\TinTot.Domain.sourcelink.json
