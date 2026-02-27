@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../TinTot.Application/TinTot.Application.csproj" />
+  <Project Path="../TinTot.Infrastructure/TinTot.Infrastructure.csproj" />
+  <Project Path="Tin_Tot_Website.csproj" />
+</Solution>

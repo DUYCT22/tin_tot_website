@@ -1,0 +1,17 @@
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Infrastructure.deps.json
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Infrastructure.dll
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Infrastructure.pdb
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Application.dll
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Domain.dll
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Domain.pdb
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\bin\Debug\net8.0\TinTot.Application.pdb
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.csproj.AssemblyReference.cache
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.AssemblyInfoInputs.cache
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.AssemblyInfo.cs
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.I.2974092F.Up2Date
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.dll
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\refint\TinTot.Infrastructure.dll
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\TinTot.Infrastructure.pdb
+D:\Tin_Tot_Web_Pro\TinTot.Infrastructure\obj\Debug\net8.0\ref\TinTot.Infrastructure.dll

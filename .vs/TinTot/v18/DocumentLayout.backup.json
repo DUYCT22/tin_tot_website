@@ -1,0 +1,457 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Tin_Tot_Web_Pro\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|d:\\tin_tot_web_pro\\tintot.infrastructure\\tintot.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|solutionrelative:tintot.infrastructure\\tintot.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|d:\\tin_tot_web_pro\\tintot.infrastructure\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|solutionrelative:tintot.infrastructure\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\interfaces\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\tintot.application.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\tintot.application.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|D:\\Tin_Tot_Web_Pro\\docker-compose.yml||{06C066C6-04A2-4E5D-8202-439FD4234EF1}",
+      "RelativeMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|solutionrelative:docker-compose.yml||{06C066C6-04A2-4E5D-8202-439FD4234EF1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|d:\\tin_tot_web_pro\\tintot.infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A580E56-27C3-45BD-AA9A-BEE931431513}|TinTot.Infrastructure\\TinTot.Infrastructure.csproj|solutionrelative:tintot.infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\interfaces\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\interfaces\\iauthservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\interfaces\\iauthservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\tin_tot_website.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\tin_tot_website.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Banner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Banner.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\User.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\User.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Rating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Rating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Listing.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Listing.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Image.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Image.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Follow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Follow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Favorite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Domain\\Entities\\Favorite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2026-02-27T07:01:22.051Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Program.cs",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Program.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Program.cs",
+              "RelativeToolTip": "Tin_Tot_Website\\Program.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAcwCEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:38:59.323Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TinTot.Infrastructure.csproj",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\TinTot.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "TinTot.Infrastructure\\TinTot.Infrastructure.csproj",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\TinTot.Infrastructure.csproj*",
+              "RelativeToolTip": "TinTot.Infrastructure\\TinTot.Infrastructure.csproj*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-27T06:43:45.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IUserRepository.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IUserRepository.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\Interfaces\\IUserRepository.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IUserRepository.cs",
+              "RelativeToolTip": "TinTot.Application\\Interfaces\\IUserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:24.248Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "TinTot.Infrastructure\\Data\\AppDbContext.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "TinTot.Infrastructure\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:40:30.601Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TinTot.Application.csproj",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\TinTot.Application.csproj",
+              "RelativeDocumentMoniker": "TinTot.Application\\TinTot.Application.csproj",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\TinTot.Application.csproj",
+              "RelativeToolTip": "TinTot.Application\\TinTot.Application.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-27T07:16:24.674Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\Services\\AuthService.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\AuthService.cs",
+              "RelativeToolTip": "TinTot.Application\\Services\\AuthService.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:40:00.722Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Dockerfile",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Dockerfile",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Dockerfile",
+              "RelativeToolTip": "Tin_Tot_Website\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-27T06:38:52.879Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "TinTot.Infrastructure\\Repositories\\UserRepository.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "TinTot.Infrastructure\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:34:03.946Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\Services\\UserService.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\UserService.cs",
+              "RelativeToolTip": "TinTot.Application\\Services\\UserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:40:15.302Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IUserService.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\Interfaces\\IUserService.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IUserService.cs",
+              "RelativeToolTip": "TinTot.Application\\Interfaces\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:22.661Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Tin_Tot_Website.csproj",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Tin_Tot_Website.csproj",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Tin_Tot_Website.csproj",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Tin_Tot_Website.csproj",
+              "RelativeToolTip": "Tin_Tot_Website\\Tin_Tot_Website.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-27T06:44:37.505Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IAuthService.cs.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IAuthService.cs.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\Interfaces\\IAuthService.cs.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Interfaces\\IAuthService.cs.cs",
+              "RelativeToolTip": "TinTot.Application\\Interfaces\\IAuthService.cs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:21.531Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Banner.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Banner.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Banner.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Banner.cs",
+              "RelativeToolTip": "Domain\\Entities\\Banner.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:32:34.372Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\LoginDto.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\DTOs\\LoginDto.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\LoginDto.cs",
+              "RelativeToolTip": "TinTot.Application\\DTOs\\LoginDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:39:06.561Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Category.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Category.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Category.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Category.cs",
+              "RelativeToolTip": "Domain\\Entities\\Category.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:32:46.031Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "UserDto.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\UserDto.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\DTOs\\UserDto.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\UserDto.cs",
+              "RelativeToolTip": "TinTot.Application\\DTOs\\UserDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:39:18.505Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "RegisterDto.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\RegisterDto.cs",
+              "RelativeDocumentMoniker": "TinTot.Application\\DTOs\\RegisterDto.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\DTOs\\RegisterDto.cs",
+              "RelativeToolTip": "TinTot.Application\\DTOs\\RegisterDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:39:12.966Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Controllers\\UserController.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Tin_Tot_Website\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:37:43.007Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\User.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\User.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\User.cs",
+              "RelativeToolTip": "Domain\\Entities\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:13.354Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Rating.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Rating.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Rating.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Rating.cs",
+              "RelativeToolTip": "Domain\\Entities\\Rating.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:11.136Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Notification.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Notification.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Notification.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Notification.cs",
+              "RelativeToolTip": "Domain\\Entities\\Notification.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:09.001Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Listing.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Listing.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Listing.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Listing.cs",
+              "RelativeToolTip": "Domain\\Entities\\Listing.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:06.754Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "Message.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Message.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Message.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Message.cs",
+              "RelativeToolTip": "Domain\\Entities\\Message.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:04.292Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Image.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Image.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Image.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Image.cs",
+              "RelativeToolTip": "Domain\\Entities\\Image.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:02.215Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "Follow.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Follow.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Follow.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Follow.cs",
+              "RelativeToolTip": "Domain\\Entities\\Follow.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:33:00.065Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "Favorite.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Favorite.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Favorite.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Domain\\Entities\\Favorite.cs",
+              "RelativeToolTip": "Domain\\Entities\\Favorite.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-27T06:32:57.444Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

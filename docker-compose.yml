@@ -1,6 +1,4 @@
-﻿version: '3.8'
-
-services:
+﻿services:
   db:
     image: postgres:16
     container_name: tintot_postgres
@@ -25,7 +23,9 @@ services:
     ports:
       - "6379:6379"
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Tin_Tot_Website/Dockerfile
     container_name: tintot_api
     restart: always
     depends_on:
