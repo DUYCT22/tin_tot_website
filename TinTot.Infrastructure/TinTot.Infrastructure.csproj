@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\TinTot.Domain.csproj" />
     <ProjectReference Include="..\TinTot.Application\TinTot.Application.csproj" />
     <ProjectReference Include="..\TinTot.Domain\TinTot.Domain.csproj" />
   </ItemGroup>

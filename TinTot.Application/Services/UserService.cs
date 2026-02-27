@@ -15,7 +15,7 @@ namespace TinTot.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<UserDto?> GetByIdAsync(Guid id)
+        public async Task<UserDto?> GetByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null) return null;

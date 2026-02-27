@@ -17,7 +17,6 @@ namespace TinTot.Infrastructure.Data
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<Rating> Ratings => Set<Rating>();
         public DbSet<Banner> Banners => Set<Banner>();
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("public");

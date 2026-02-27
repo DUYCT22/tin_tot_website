@@ -5,7 +5,7 @@ namespace TinTot.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto?> GetByIdAsync(Guid id);
+        Task<UserDto?> GetByIdAsync(int id);
         Task<IEnumerable<UserDto>> GetAllAsync();
     }
 }

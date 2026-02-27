@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TinTot.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e49fa0c9dda84d62c20841e49187c397a0e0432")]
 [assembly: System.Reflection.AssemblyProductAttribute("TinTot.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TinTot.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
