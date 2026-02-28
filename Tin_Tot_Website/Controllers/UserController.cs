@@ -17,7 +17,7 @@ namespace Tin_Tot_Website.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<IActionResult> Register([FromForm] RegisterDto dto, IFormFile? avatar)
         {
             if (!ModelState.IsValid)
             {
@@ -26,7 +26,22 @@ namespace Tin_Tot_Website.Controllers
 
             try
             {
-                var user = await _authService.RegisterAsync(dto);
+                AvatarUploadDto? avatarUpload = null;
+                await using var avatarStream = new MemoryStream();
+
+                if (avatar is not null && avatar.Length > 0)
+                {
+                    await avatar.CopyToAsync(avatarStream);
+                    avatarStream.Position = 0;
+
+                    avatarUpload = new AvatarUploadDto
+                    {
+                        FileName = avatar.FileName,
+                        Content = avatarStream
+                    };
+                }
+
+                var user = await _authService.RegisterAsync(dto, avatarUpload);
                 return CreatedAtAction(nameof(Register), user);
             }
             catch (InvalidOperationException ex)
@@ -49,7 +64,7 @@ namespace Tin_Tot_Website.Controllers
                 return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu" });
             }
 
-            return Ok(user);
+            return Ok(user.FullName + user.Avatar);
         }
 
         //public IActionResult Index()

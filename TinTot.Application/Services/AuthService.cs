@@ -11,17 +11,24 @@ namespace TinTot.Application.Services
         private const int KeySize = 32;
         private const int Iterations = 100_000;
         private static readonly HashAlgorithmName HashAlgorithm = HashAlgorithmName.SHA256;
+        private static readonly HashSet<string> AllowedAvatarExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".png", ".jpg", ".jpeg", ".jpge"
+        };
         private readonly IUserRepository _userRepository;
+        private readonly IAvatarStorageService _avatarStorageService;
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService)
         {
             _userRepository = userRepository;
+            _avatarStorageService = avatarStorageService;
         }
 
-        public async Task<UserDto> RegisterAsync(RegisterDto dto)
+        public async Task<UserDto> RegisterAsync(RegisterDto dto, AvatarUploadDto? avatarUpload = null)
         {
             var normalizedLoginName = dto.LoginName.Trim();
             var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var normalizedPhone = dto.Phone.Trim();
 
             var existingByLoginName = await _userRepository.GetByLoginNameAsync(normalizedLoginName);
             if (existingByLoginName != null)
@@ -34,12 +41,23 @@ namespace TinTot.Application.Services
             {
                 throw new InvalidOperationException("Email đã tồn tại");
             }
+            string? avatarUrl = null;
+            if (avatarUpload is not null)
+            {
+                avatarUrl = await UploadAvatarAsync(avatarUpload);
+            }
+            var existingByPhone = await _userRepository.GetByPhoneAsync(normalizedPhone);
+            if (existingByPhone != null)
+            {
+                throw new InvalidOperationException("Số điện thoại đã tồn tại");
+            }
 
             var user = new User
             {
                 FullName = dto.FullName.Trim(),
                 Email = normalizedEmail,
-                Phone = dto.Phone.Trim(),
+                Phone = normalizedPhone,
+                Avatar = avatarUrl,
                 LoginName = normalizedLoginName,
                 Password = HashPassword(dto.Password),
                 Role = 0,
@@ -56,6 +74,7 @@ namespace TinTot.Application.Services
                 FullName = user.FullName,
                 Email = user.Email,
                 Phone = user.Phone,
+                Avatar = user.Avatar,
                 LoginName = user.LoginName,
                 Role = user.Role,
                 Online = user.Online,
@@ -88,6 +107,7 @@ namespace TinTot.Application.Services
                 FullName = user.FullName,
                 Email = user.Email,
                 Phone = user.Phone,
+                Avatar = user.Avatar,
                 LoginName = user.LoginName,
                 Role = user.Role,
                 Online = user.Online,
@@ -118,5 +138,46 @@ namespace TinTot.Application.Services
 
             return CryptographicOperations.FixedTimeEquals(computedHash, expectedHash);
         }
+        private async Task<string> UploadAvatarAsync(AvatarUploadDto avatarUpload)
+        {
+            var extension = Path.GetExtension(avatarUpload.FileName).ToLowerInvariant();
+            if (!AllowedAvatarExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException("Avatar chỉ hỗ trợ file ảnh PNG, JPG, JPEG hoặc JPGE");
+            }
+
+            var allAvatarUrls = await _userRepository.GetAllAvatarUrlsAsync();
+            var nextNumber = GetNextAvatarNumber(allAvatarUrls);
+            var publicId = $"User/{nextNumber}";
+
+            return await _avatarStorageService.UploadImageAsync(avatarUpload.Content, publicId);
+        }
+
+        private static int GetNextAvatarNumber(IEnumerable<string?> avatarUrls)
+        {
+            var maxNumber = 0;
+
+            foreach (var avatarUrl in avatarUrls.Where(x => !string.IsNullOrWhiteSpace(x)))
+            {
+                var fileName = GetFileNameWithoutExtension(avatarUrl!);
+                if (int.TryParse(fileName, out var current) && current > maxNumber)
+                {
+                    maxNumber = current;
+                }
+            }
+
+            return maxNumber + 1;
+        }
+
+        private static string GetFileNameWithoutExtension(string avatarUrl)
+        {
+            if (Uri.TryCreate(avatarUrl, UriKind.Absolute, out var absoluteUri))
+            {
+                return Path.GetFileNameWithoutExtension(absoluteUri.AbsolutePath);
+            }
+
+            return Path.GetFileNameWithoutExtension(avatarUrl);
+        }
     }
 }
+    
