@@ -3,6 +3,42 @@
   "WorkspaceRootPath": "D:\\Tin_Tot_Web_Pro\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|D:\\Tin_Tot_Web_Pro\\docker-compose.yml||{06C066C6-04A2-4E5D-8202-439FD4234EF1}",
+      "RelativeMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|solutionrelative:docker-compose.yml||{06C066C6-04A2-4E5D-8202-439FD4234EF1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|D:\\Tin_Tot_Web_Pro\\Dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|Solution Items{8C031839-7187-480A-8B2B-6ACB65E3BCB8}|solutionrelative:Dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\views\\user\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\views\\user\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\views\\user\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\views\\user\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\views\\home\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\views\\home\\privacy.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|d:\\tin_tot_web_pro\\tin_tot_website\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3144D6DA-B452-40BD-9DB7-EBC043E9176D}|Tin_Tot_Website\\Tin_Tot_Website.csproj|solutionrelative:tin_tot_website\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|d:\\tin_tot_web_pro\\tintot.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{91251798-B68C-4881-9C21-FDDF17B9AD1F}|TinTot.Application\\TinTot.Application.csproj|solutionrelative:tintot.application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -14,20 +50,136 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Dockerfile",
+              "RelativeDocumentMoniker": "Dockerfile",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Dockerfile",
+              "RelativeToolTip": "Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-03-01T13:10:51.769Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2026-03-01T13:10:17.807Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\appsettings.json",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\appsettings.json",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\appsettings.json",
+              "RelativeToolTip": "Tin_Tot_Website\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-01T13:09:57.702Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Privacy.cshtml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\Home\\Privacy.cshtml",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Views\\Home\\Privacy.cshtml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\Home\\Privacy.cshtml",
+              "RelativeToolTip": "Tin_Tot_Website\\Views\\Home\\Privacy.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-01T12:51:21.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Properties\\launchSettings.json",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Tin_Tot_Website\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAswB0AAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-01T11:51:24.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Register.cshtml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\User\\Register.cshtml",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Views\\User\\Register.cshtml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\User\\Register.cshtml",
+              "RelativeToolTip": "Tin_Tot_Website\\Views\\User\\Register.cshtml",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAAAEgAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-01T11:26:28.661Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\User\\Login.cshtml",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Views\\User\\Login.cshtml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\User\\Login.cshtml",
+              "RelativeToolTip": "Tin_Tot_Website\\Views\\User\\Login.cshtml",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAAAGcAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-01T11:25:08.825Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Tin_Tot_Website\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-01T11:20:17.728Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "Tin_Tot_Website\\Controllers\\UserController.cs",
+              "ToolTip": "D:\\Tin_Tot_Web_Pro\\Tin_Tot_Website\\Controllers\\UserController.cs",
+              "RelativeToolTip": "Tin_Tot_Website\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAAGoAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-28T11:44:21.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "AuthService.cs",
               "DocumentMoniker": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "TinTot.Application\\Services\\AuthService.cs",
               "ToolTip": "D:\\Tin_Tot_Web_Pro\\TinTot.Application\\Services\\AuthService.cs",
               "RelativeToolTip": "TinTot.Application\\Services\\AuthService.cs",
-              "ViewState": "AgIAAKMAAAAAAAAAAADwv4wAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAKMAAAAAAAAAAADwv7YAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T11:14:37.067Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-28T11:14:37.067Z"
             }
           ]
         }
