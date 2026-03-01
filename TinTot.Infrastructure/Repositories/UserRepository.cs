@@ -30,6 +30,17 @@ namespace TinTot.Infrastructure.Repositories
             return await _context.Users
                 .FirstOrDefaultAsync(x => x.Email == email);
         }
+        public async Task<List<string?>> GetAllAvatarUrlsAsync()
+        {
+            return await _context.Users
+                .Select(x => x.Avatar)
+                .ToListAsync();
+        }
+        public async Task<User?> GetByPhoneAsync(string phone)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(x => x.Phone == phone);
+        }
 
         public async Task AddAsync(User user)
         {

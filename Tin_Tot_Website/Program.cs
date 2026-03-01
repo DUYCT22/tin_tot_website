@@ -3,6 +3,7 @@ using TinTot.Infrastructure.Data;
 using TinTot.Application.Interfaces;
 using TinTot.Application.Services;
 using TinTot.Infrastructure.Repositories;
+using TinTot.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAvatarStorageService, CloudinaryAvatarStorageService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddStackExchangeRedisCache(options =>
