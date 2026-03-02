@@ -1,14 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Configuration;
-using Npgsql.BackendMessages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using TinTot.Application.Interfaces;
+using TinTot.Application.Interfaces.Users;
 
 namespace TinTot.Infrastructure.Services
 {
@@ -35,21 +28,40 @@ namespace TinTot.Infrastructure.Services
         {
             var uploadParams = new ImageUploadParams
             {
-                File = new FileDescription("avatar", stream),
+                File = new FileDescription("image", stream),
                 PublicId = publicId,
                 UseFilename = false,
                 UniqueFilename = false,
-                Overwrite = true,
+                Overwrite = true
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
             if (uploadResult.Error is not null)
             {
-                throw new InvalidOperationException($"Upload avatar thất bại: {uploadResult.Error.Message}");
+                throw new InvalidOperationException($"Upload ảnh thất bại: {uploadResult.Error.Message}");
             }
 
             return uploadResult.SecureUrl?.ToString()
-                ?? throw new InvalidOperationException("Không lấy được URL avatar từ Cloudinary");
+                ?? throw new InvalidOperationException("Không lấy được URL ảnh từ Cloudinary");
+        }
+
+        public async Task DeleteImageAsync(string publicId)
+        {
+            if (string.IsNullOrWhiteSpace(publicId))
+            {
+                return;
+            }
+
+            var deletionParams = new DeletionParams(publicId)
+            {
+                ResourceType = ResourceType.Image
+            };
+
+            var deletionResult = await _cloudinary.DestroyAsync(deletionParams);
+            if (deletionResult.Error is not null)
+            {
+                throw new InvalidOperationException($"Xóa ảnh thất bại: {deletionResult.Error.Message}");
+            }
         }
     }
 }
