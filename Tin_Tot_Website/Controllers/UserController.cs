@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tin_Tot_Website.Models;
-using TinTot.Application.DTOs;
-using TinTot.Application.Interfaces;
+using TinTot.Application.DTOs.Users;
+using Microsoft.AspNetCore.Authorization;
+using Tin_Tot_Website.Services;
+using TinTot.Application.Interfaces.Users;
 
 namespace Tin_Tot_Website.Controllers
 {
@@ -18,10 +19,12 @@ namespace Tin_Tot_Website.Controllers
             "image/gif"
         };
         private readonly IAuthService _authService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public UserController(IAuthService authService)
+        public UserController(IAuthService authService, IJwtTokenService jwtTokenService)
         {
             _authService = authService;
+            _jwtTokenService = jwtTokenService;
         }
         [HttpGet("~/login")]
         public IActionResult LoginPage()
@@ -93,6 +96,7 @@ namespace Tin_Tot_Website.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
@@ -106,13 +110,12 @@ namespace Tin_Tot_Website.Controllers
             {
                 return Unauthorized(new { success = false, message = "Sai tài khoản hoặc mật khẩu" });
             }
-
+            var token = _jwtTokenService.GenerateToken(user);
             return Ok(new
             {
                 success = true,
-                message = $"Xin chào {user.FullName ?? user.LoginName}",
                 redirectUrl = Url.Action("Index", "Home"),
-                user
+                token
             });
         }
 

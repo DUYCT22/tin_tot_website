@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TinTot.Infrastructure.Data;
 using TinTot.Domain.Entities;
-using TinTot.Application.Interfaces;
+using TinTot.Application.Interfaces.Users;
 namespace TinTot.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
