@@ -7,8 +7,11 @@ using Tin_Tot_Website.Services;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
 using TinTot.Application.Interfaces.Users;
-using TinTot.Application.Services;
+using TinTot.Application.Interfaces.Images;
+using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Services;  
 using TinTot.Application.Services.Users;
+using TinTot.Application.Services.Listings;
 using TinTot.Infrastructure.Data;
 using TinTot.Infrastructure.Repositories;
 using TinTot.Infrastructure.Services;
@@ -46,9 +49,13 @@ builder.Services.AddScoped<IAvatarStorageService, CloudinaryAvatarStorageService
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
+builder.Services.AddScoped<IListingService, ListingService>();
+builder.Services.AddScoped<IListingImageService, ListingImageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
+builder.Services.AddScoped<IListingRepository, ListingRepository>();
+builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Thiếu cấu hình Jwt:Key");
