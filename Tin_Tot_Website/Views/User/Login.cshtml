@@ -100,7 +100,12 @@
 
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    await Swal.fire({ icon: 'success', text: data.message, timer: 1400, showConfirmButton: false });
+                    localStorage.setItem('tin_tot_token', data.token ?? '');
+                    if (data.user) {
+                        localStorage.setItem('tin_tot_user', JSON.stringify(data.user));
+                    }
+
+                    await Swal.fire({ icon: 'success', text: data.message ?? 'Đăng nhập thành công', timer: 1400, showConfirmButton: false });
                     window.location.href = data.redirectUrl ?? '/';
                     return;
                 }

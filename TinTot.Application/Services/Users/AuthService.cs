@@ -100,6 +100,20 @@ namespace TinTot.Application.Services.Users
             return ToUserDto(user);
         }
 
+        public async Task<bool> LogoutAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user is null)
+            {
+                return false;
+            }
+
+            user.Online = false;
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            return true;
+        }
         private static UserDto ToUserDto(User user)
         {
             return new UserDto

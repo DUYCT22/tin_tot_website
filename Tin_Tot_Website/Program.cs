@@ -6,14 +6,17 @@ using System.Text;
 using Tin_Tot_Website.Services;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
-using TinTot.Application.Interfaces.Users;
+using TinTot.Application.Interfaces.Home;
 using TinTot.Application.Interfaces.Images;
 using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Interfaces.Users;
 using TinTot.Application.Services;  
-using TinTot.Application.Services.Users;
+using TinTot.Application.Services.Home;
 using TinTot.Application.Services.Listings;
+using TinTot.Application.Services.Users;
 using TinTot.Infrastructure.Data;
 using TinTot.Infrastructure.Repositories;
+using TinTot.Infrastructure.Repositories.Home;
 using TinTot.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +29,7 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
+// Global exception handlers
 AppDomain.CurrentDomain.UnhandledException += (_, e) =>
 {
     Console.Error.WriteLine($"[FATAL][UnhandledException] {e.ExceptionObject}");
@@ -56,6 +60,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
+builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
+builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Thiếu cấu hình Jwt:Key");
@@ -100,15 +106,21 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Friendly URL for page
+app.MapControllerRoute(
+    name: "FriendlyHome",
+    pattern: "Trang-Chu",
+    defaults: new { controller = "Home", action = "Index" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Apply pending migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

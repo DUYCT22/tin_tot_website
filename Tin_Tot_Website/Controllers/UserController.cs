@@ -3,6 +3,7 @@ using TinTot.Application.DTOs.Users;
 using Microsoft.AspNetCore.Authorization;
 using Tin_Tot_Website.Services;
 using TinTot.Application.Interfaces.Users;
+using System.Security.Claims;
 
 namespace Tin_Tot_Website.Controllers
 {
@@ -114,11 +115,30 @@ namespace Tin_Tot_Website.Controllers
             return Ok(new
             {
                 success = true,
+                message = "Đăng nhập thành công",
                 redirectUrl = Url.Action("Index", "Home"),
-                token
+                token,
+                user
             });
         }
 
-        
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { success = false, message = "Phiên đăng nhập không hợp lệ." });
+            }
+
+            var loggedOut = await _authService.LogoutAsync(userId);
+            if (!loggedOut)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy tài khoản người dùng." });
+            }
+
+            return Ok(new { success = true, message = "Đăng xuất thành công" });
+        }
     }
 }
