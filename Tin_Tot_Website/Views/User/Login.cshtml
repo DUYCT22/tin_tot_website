@@ -100,7 +100,9 @@
 
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    localStorage.setItem('tin_tot_token', data.token ?? '');
+                    const token = data.token ?? '';
+                    localStorage.setItem('tin_tot_token', token);
+                    document.cookie = `tin_tot_access_token=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
                     if (data.user) {
                         localStorage.setItem('tin_tot_user', JSON.stringify(data.user));
                     }

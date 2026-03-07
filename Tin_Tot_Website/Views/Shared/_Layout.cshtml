@@ -90,8 +90,22 @@
             const userAvatar = document.getElementById('userAvatar');
             const logoutBtn = document.getElementById('logoutBtn');
 
+             const writeAuthCookie = (value) => {
+                document.cookie = `tin_tot_access_token=${encodeURIComponent(value)}; path=/; SameSite=Lax`;
+            };
+
+            const clearAuthCookie = () => {
+                document.cookie = 'tin_tot_access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+            };
+
             const token = localStorage.getItem(tokenKey);
             const rawProfile = localStorage.getItem(profileKey);
+
+            if (token) {
+                writeAuthCookie(token);
+            } else {
+                clearAuthCookie();
+            }
 
             if (token && rawProfile) {
                 try {
@@ -105,6 +119,8 @@
                     userActions.classList.remove('d-none');
                 } catch {
                     localStorage.removeItem(profileKey);
+                    localStorage.removeItem(tokenKey);
+                    clearAuthCookie();
                 }
             }
 
@@ -123,6 +139,7 @@
                 } finally {
                     localStorage.removeItem(tokenKey);
                     localStorage.removeItem(profileKey);
+                    clearAuthCookie();
                     window.location.href = '/';
                 }
             });

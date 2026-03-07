@@ -76,6 +76,19 @@ var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "TinTotClient";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token)
+                    && context.Request.Cookies.TryGetValue("tin_tot_access_token", out var tokenFromCookie))
+                {
+                    context.Token = tokenFromCookie;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
