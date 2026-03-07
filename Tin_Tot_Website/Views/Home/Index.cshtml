@@ -1,12 +1,73 @@
-﻿@{
+﻿@model TinTot.Application.DTOs.HomePageDto
+@{
     ViewData["Title"] = "Trang chủ";
+
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-5">Tin Tốt Website</h1>
-    <p class="lead">Demo giao diện đăng nhập/đăng ký mới.</p>
-    <div class="d-flex justify-content-center gap-2">
-        <a class="btn btn-primary" href="/login">Đăng nhập</a>
-        <a class="btn btn-outline-primary" href="/register">Đăng ký</a>
+<section class="hero-bg p-4 p-md-5 mb-4">
+    <div class="row align-items-center gy-3">
+        <div class="col-lg-12">
+            <h1 class="display-6 fw-bold mb-2">Tin Tốt - Rao vặt an toàn, nhanh chóng</h1>
+            <p class="text-muted mb-0">Khám phá danh mục nổi bật và các bài đăng mới nhất được gợi ý cho bạn.</p>
+        </div>
     </div>
-</div>
+</section>
+
+@if (Model.Banners.Count > 0)
+{
+    <div id="homeBanners" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            @for (var i = 0; i < Model.Banners.Count; i++)
+            {
+                <button type="button" data-bs-target="#homeBanners" data-bs-slide-to="@i" class="@(i == 0 ? "active" : string.Empty)"></button>
+            }
+        </div>
+
+        <div class="carousel-inner rounded-4 shadow-sm">
+            @for (var i = 0; i < Model.Banners.Count; i++)
+            {
+                var banner = Model.Banners[i];
+                <div class="carousel-item @(i == 0 ? "active" : string.Empty)">
+                    <a href="@(string.IsNullOrWhiteSpace(banner.Link) ? "#" : banner.Link)" target="_blank" rel="noopener noreferrer">
+                        <img src="@(banner.Image ?? "/favicon.ico")" class="d-block w-100" style="height:320px; object-fit:cover;" alt="Banner @i" />
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<section class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-bold mb-0">Danh mục nổi bật</h2>
+        <span class="text-muted small">@Model.Categories.Count danh mục</span>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-6 col-md-4 col-lg-2">
+                <a class="card h-100 border-0 shadow-sm text-decoration-none" href="#">
+                    <img src="@(category.Image ?? "/favicon.ico")" class="card-img-top" style="height:100px; object-fit:cover;" alt="@category.Name" />
+                    <div class="card-body py-2">
+                        <p class="card-text text-dark text-center fw-semibold mb-0">@category.Name</p>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-bold mb-0">Bài đăng mới nhất</h2>
+        <span class="text-muted small">@Model.Listings.Count bài đăng</span>
+    </div>
+
+    @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", new Tin_Tot_Website.Models.ListingCardSectionViewModel
+    {
+        Listings = Model.Listings,
+        UserRatingAvg = Model.UserRatingAvg,
+        EmptyMessage = "Chưa có bài đăng mới nhất."
+        })
+</section>

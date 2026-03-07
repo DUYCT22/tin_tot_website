@@ -5,7 +5,7 @@ using TinTot.Application.DTOs;
 using TinTot.Application.DTOs.Users;
 using TinTot.Application.Interfaces.Categories;
 
-namespace Tin_Tot_Website.Controllers
+namespace Tin_Tot_Website.Areas.Admin.Controllers
 {
     [Authorize]
     [ApiController]

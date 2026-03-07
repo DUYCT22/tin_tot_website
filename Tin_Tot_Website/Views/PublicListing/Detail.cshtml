@@ -1,0 +1,256 @@
+﻿@model Tin_Tot_Website.Models.ListingDetailPageViewModel
+@using TinTot.Application.Common
+@{
+    ViewData["Title"] = Model.Listing.Title ?? "Chi tiết bài đăng";
+    var images = Model.Listing.ImageUrls.Any() ? Model.Listing.ImageUrls : new List<string> { "/favicon.ico" };
+}
+
+<style>
+    .custom-carousel-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+    }
+
+    .carousel-control-prev.custom-carousel-btn {
+        left: 10px;
+    }
+
+    .carousel-control-next.custom-carousel-btn {
+        right: 10px;
+    }
+
+    .custom-carousel-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);
+    }
+</style>
+
+<section class="mb-4">
+    <nav class="small text-muted mb-2">
+        <a href="/">Trang chủ</a> / <span>@Model.Listing.CategoryName</span> / <span>@Model.Listing.Title</span>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div id="carouselImages" class="carousel slide shadow-sm rounded-3 overflow-hidden" data-bs-ride="false">
+                <div class="carousel-inner bg-light" style="height: 420px; overflow: hidden;">
+                    @for (var i = 0; i < images.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : string.Empty) h-100">
+                            <img src="@images[i]" class="d-block w-100 h-100" style="object-fit: contain; cursor: zoom-in;" data-index="@i" alt="image @i" />
+                        </div>
+                    }
+                </div>
+
+                @if (images.Count > 1)
+                {
+                    <button class="carousel-control-prev custom-carousel-btn" type="button" data-bs-target="#carouselImages" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next custom-carousel-btn" type="button" data-bs-target="#carouselImages" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <h1 class="h3 mb-2">@Model.Listing.Title</h1>
+            <p class="h4 text-danger fw-bold">@string.Format("{0:N0} đ", Model.Listing.Price ?? 0)</p>
+            <p class="mb-1"><strong>Địa điểm:</strong> @Model.Listing.Location</p>
+            <p class="text-muted"><strong>Ngày đăng:</strong> @(Model.Listing.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? string.Empty)</p>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button id="favoriteBtn" class="btn btn-outline-danger" data-listing-key="@Model.ListingKey" type="button">
+                    <i class="bi bi-heart me-1"></i> Lưu tin
+                </button>
+                <button id="shareBtn" class="btn btn-outline-primary" type="button">
+                    <i class="bi bi-share me-1"></i> Chia sẻ
+                </button>
+                @if (!string.IsNullOrWhiteSpace(Model.Listing.UserPhone))
+                {
+                    <a class="btn btn-success" href="tel:@Model.Listing.UserPhone"><i class="bi bi-telephone-fill me-1"></i> Gọi ngay</a>
+                }
+            </div>
+
+            <hr />
+
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                <a class="d-flex align-items-center text-dark text-decoration-none" href="@Url.Action("ProfileSeller", "PublicListing", new { slug = SlugHelper.ToSlug(Model.Listing.UserFullName), key = Model.SellerKey })">
+                    <img src="@(Model.Listing.UserAvatar ?? "/favicon.ico")" class="rounded-circle border me-2" style="width:50px;height:50px;object-fit:cover" alt="seller" />
+                    <div>
+                        <div class="fw-semibold">@Model.Listing.UserFullName</div>
+                        <div class="small text-muted">⭐ @Model.Listing.UserRatingAverage.ToString("0.0") (@Model.Listing.UserRatingCount đánh giá)</div>
+                    </div>
+                </a>
+
+                @if (!string.IsNullOrWhiteSpace(Model.SellerKey))
+                {
+                    <button id="followBtn" class="btn btn-outline-info" data-seller-key="@Model.SellerKey" type="button">
+                        <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h2 class="h5">Chi tiết mô tả</h2>
+    <p class="mb-0" style="white-space: pre-wrap;">@Model.Listing.Description</p>
+</section>
+
+<section>
+    <h2 class="h4 fw-bold mb-3">Bài đăng liên quan</h2>
+    @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", Model.RelatedSection)
+</section>
+
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white ms-auto me-2 mt-2" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center">
+                <div id="modalCarousel" class="carousel slide w-100" data-bs-ride="false">
+                    <div class="carousel-inner">
+                        @for (var i = 0; i < images.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : string.Empty)">
+                                <img src="@images[i]" class="d-block mx-auto" style="max-width: 100%; height: 80vh; object-fit: contain;" alt="modal image @i" />
+                            </div>
+                        }
+                    </div>
+                    @if (images.Count > 1)
+                    {
+                        <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            const favoriteBtn = document.getElementById('favoriteBtn');
+            const followBtn = document.getElementById('followBtn');
+            const shareBtn = document.getElementById('shareBtn');
+
+            const carouselImages = document.getElementById('carouselImages');
+            const modalElement = document.getElementById('imageModal');
+            const modal = modalElement ? new bootstrap.Modal(modalElement) : null;
+            const modalCarouselElement = document.getElementById('modalCarousel');
+            const modalCarousel = modalCarouselElement ? new bootstrap.Carousel(modalCarouselElement) : null;
+
+            carouselImages?.querySelectorAll('img[data-index]').forEach(img => {
+                img.addEventListener('click', () => {
+                    const index = Number(img.getAttribute('data-index') || '0');
+                    modal?.show();
+                    setTimeout(() => modalCarousel?.to(index), 150);
+                });
+            });
+
+            const showToast = (message) => alert(message);
+
+            const setFavoriteState = (isActive) => {
+                if (!favoriteBtn) return;
+                favoriteBtn.className = isActive ? 'btn btn-danger' : 'btn btn-outline-danger';
+                favoriteBtn.innerHTML = isActive
+                    ? '<i class="bi bi-heart-fill me-1"></i> Đã lưu tin'
+                    : '<i class="bi bi-heart me-1"></i> Lưu tin';
+                favoriteBtn.dataset.active = isActive ? '1' : '0';
+            };
+
+            const setFollowState = (isActive) => {
+                if (!followBtn) return;
+                followBtn.className = isActive ? 'btn btn-info' : 'btn btn-outline-info';
+                followBtn.innerHTML = isActive
+                    ? '<i class="bi bi-person-check-fill me-1"></i> Đang theo dõi'
+                    : '<i class="bi bi-person-plus-fill me-1"></i> Theo dõi';
+                followBtn.dataset.active = isActive ? '1' : '0';
+            };
+
+            const loadInteractionState = async () => {
+                if (!token) return;
+                const query = new URLSearchParams();
+                if (favoriteBtn?.dataset.listingKey) query.set('listingKey', favoriteBtn.dataset.listingKey);
+                if (followBtn?.dataset.sellerKey) query.set('sellerKey', followBtn.dataset.sellerKey);
+
+                const response = await fetch(`/api/interactions/state?${query.toString()}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!response.ok) return;
+                const payload = await response.json();
+                if (payload.success) {
+                    setFavoriteState(Boolean(payload.isFavorited));
+                    setFollowState(Boolean(payload.isFollowing));
+                }
+            };
+
+            favoriteBtn?.addEventListener('click', async () => {
+                if (!token) return showToast('Bạn cần đăng nhập để lưu tin.');
+
+                const key = favoriteBtn.dataset.listingKey;
+                const isActive = favoriteBtn.dataset.active === '1';
+                const response = await fetch(`/api/interactions/favorites/${encodeURIComponent(key)}`, {
+                    method: isActive ? 'DELETE' : 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok || !payload.success) return showToast(payload.message || 'Không thể cập nhật lưu tin.');
+
+                setFavoriteState(!isActive);
+                showToast(payload.message);
+            });
+
+            followBtn?.addEventListener('click', async () => {
+                if (!token) return showToast('Bạn cần đăng nhập để theo dõi.');
+
+                const key = followBtn.dataset.sellerKey;
+                const isActive = followBtn.dataset.active === '1';
+                const response = await fetch(`/api/interactions/follows/${encodeURIComponent(key)}`, {
+                    method: isActive ? 'DELETE' : 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok || !payload.success) return showToast(payload.message || 'Không thể cập nhật theo dõi.');
+
+                setFollowState(!isActive);
+                showToast(payload.message);
+            });
+
+            shareBtn?.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    showToast('Đã sao chép liên kết bài đăng.');
+                } catch {
+                    showToast('Không thể sao chép liên kết.');
+                }
+            });
+
+            loadInteractionState();
+        })();
+    </script>
+}

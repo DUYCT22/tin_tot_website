@@ -100,7 +100,14 @@
 
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    await Swal.fire({ icon: 'success', text: data.message, timer: 1400, showConfirmButton: false });
+                    const token = data.token ?? '';
+                    localStorage.setItem('tin_tot_token', token);
+                    document.cookie = `tin_tot_access_token=${encodeURIComponent(token)}; path=/; SameSite=Lax`;
+                    if (data.user) {
+                        localStorage.setItem('tin_tot_user', JSON.stringify(data.user));
+                    }
+
+                    await Swal.fire({ icon: 'success', text: data.message ?? 'Đăng nhập thành công', timer: 1400, showConfirmButton: false });
                     window.location.href = data.redirectUrl ?? '/';
                     return;
                 }

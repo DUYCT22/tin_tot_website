@@ -6,14 +6,17 @@ using System.Text;
 using Tin_Tot_Website.Services;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
-using TinTot.Application.Interfaces.Users;
+using TinTot.Application.Interfaces.Home;
 using TinTot.Application.Interfaces.Images;
 using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Interfaces.Users;
 using TinTot.Application.Services;  
-using TinTot.Application.Services.Users;
+using TinTot.Application.Services.Home;
 using TinTot.Application.Services.Listings;
+using TinTot.Application.Services.Users;
 using TinTot.Infrastructure.Data;
 using TinTot.Infrastructure.Repositories;
+using TinTot.Infrastructure.Repositories.Home;
 using TinTot.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +29,7 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
+// Global exception handlers
 AppDomain.CurrentDomain.UnhandledException += (_, e) =>
 {
     Console.Error.WriteLine($"[FATAL][UnhandledException] {e.ExceptionObject}");
@@ -51,12 +55,19 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
 builder.Services.AddScoped<IListingService, ListingService>();
 builder.Services.AddScoped<IListingImageService, ListingImageService>();
+builder.Services.AddScoped<IInteractionService, InteractionService>();
+builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
+builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
+builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
+builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
+builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IEntityKeyService, EntityKeyService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Thiếu cấu hình Jwt:Key");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TinTot";
@@ -65,6 +76,19 @@ var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "TinTotClient";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token)
+                    && context.Request.Cookies.TryGetValue("tin_tot_access_token", out var tokenFromCookie))
+                {
+                    context.Token = tokenFromCookie;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -100,15 +124,21 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Friendly URL for page
+app.MapControllerRoute(
+    name: "FriendlyHome",
+    pattern: "Trang-Chu",
+    defaults: new { controller = "Home", action = "Index" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Apply pending migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
