@@ -1,0 +1,78 @@
+﻿@model Tin_Tot_Website.Models.SellerProfilePageViewModel
+@{
+    ViewData["Title"] = $"Người bán - {Model.Seller.SellerName}";
+}
+
+<section class="mb-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <img src="@(Model.Seller.SellerAvatar ?? "/favicon.ico")" class="rounded-circle border" style="width:82px;height:82px;object-fit:cover" alt="avatar" />
+                <div class="flex-grow-1">
+                    <h1 class="h3 mb-1">@Model.Seller.SellerName</h1>
+                    <p class="text-muted mb-0">Tham gia từ @Model.Seller.CreatedAt.ToString("MM/yyyy")</p>
+                </div>
+                <div class="text-md-end d-grid gap-2">
+                    <div class="fw-bold text-warning">@Model.Seller.RatingAverage.ToString("0.0") ★</div>
+                    <div class="small text-muted">@Model.Seller.RatingCount đánh giá</div>
+                    <button id="followBtn" class="btn btn-outline-info btn-sm" data-seller-key="@Model.SellerKey" type="button">
+                        <i class="bi bi-person-plus me-1"></i>Theo dõi
+                    </button>
+                </div>
+            </div>
+            <hr />
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><div class="fw-bold">@Model.Seller.FollowerCount</div><div class="small text-muted">Người theo dõi</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><div class="fw-bold">@Model.Seller.ActiveListingCount</div><div class="small text-muted">Đang hiển thị</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><div class="fw-bold">@Model.Seller.SoldListingCount</div><div class="small text-muted">Đã bán</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-2 bg-light rounded"><div class="fw-bold">@(Model.Seller.Status ? "Hoạt động" : "Tạm khóa")</div><div class="small text-muted">Trạng thái</div></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2 class="h4 fw-bold mb-3">Bài đăng đang hiển thị</h2>
+    @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", Model.ActiveListingsSection)
+</section>
+
+
+@section Scripts {
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            const followBtn = document.getElementById('followBtn');
+            if (!followBtn || !token) return;
+
+            const setFollowState = (isActive) => {
+                followBtn.className = isActive ? 'btn btn-info btn-sm' : 'btn btn-outline-info btn-sm';
+                followBtn.innerHTML = isActive
+                    ? '<i class="bi bi-person-check me-1"></i>Đang theo dõi'
+                    : '<i class="bi bi-person-plus me-1"></i>Theo dõi';
+                followBtn.dataset.active = isActive ? '1' : '0';
+            };
+
+            const sellerKey = followBtn.dataset.sellerKey;
+
+            fetch(`/api/interactions/state?sellerKey=${encodeURIComponent(sellerKey)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            }).then(r => r.ok ? r.json() : null).then(p => {
+                if (p?.success) setFollowState(Boolean(p.isFollowing));
+            });
+
+            followBtn.addEventListener('click', async () => {
+                const isActive = followBtn.dataset.active === '1';
+                const response = await fetch(`/api/interactions/follows/${encodeURIComponent(sellerKey)}`, {
+                    method: isActive ? 'DELETE' : 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const payload = await response.json();
+                if (!response.ok || !payload.success) {
+                    alert(payload.message || 'Không thể cập nhật theo dõi.');
+                    return;
+                }
+                setFollowState(!isActive);
+            });
+        })();
+    </script>
+}

@@ -52,12 +52,12 @@ namespace TinTot.Infrastructure.Repositories.Home
         }
 
         public async Task<List<HomeListingDto>> GetLatestListingsAsync(int? excludedUserId, int take)
-        {
+        {   
             var query = _context.Listings
                 .AsNoTracking()
                 .Include(x => x.Images)
                 .Include(x => x.User)
-                .Where(x => x.Status == 1 && x.User != null && x.User.Status == true);
+                .Where(x => x.Status == 1);
 
             if (excludedUserId.HasValue)
             {

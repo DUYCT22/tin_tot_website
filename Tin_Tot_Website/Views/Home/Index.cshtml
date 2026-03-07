@@ -2,42 +2,6 @@
 @{
     ViewData["Title"] = "Trang chủ";
 
-    string ToSlug(string? input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return "tin-dang";
-        }
-
-        var normalized = input.Trim().ToLowerInvariant();
-        var sb = new System.Text.StringBuilder();
-
-        foreach (var c in normalized.Normalize(System.Text.NormalizationForm.FormD))
-        {
-            var uc = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
-            if (uc == System.Globalization.UnicodeCategory.NonSpacingMark)
-            {
-                continue;
-            }
-
-            if (char.IsLetterOrDigit(c))
-            {
-                sb.Append(c == 'đ' ? 'd' : c);
-            }
-            else if (char.IsWhiteSpace(c) || c is '-' or '_' or '.')
-            {
-                sb.Append('-');
-            }
-        }
-
-        var slug = sb.ToString().Trim('-');
-        while (slug.Contains("--"))
-        {
-            slug = slug.Replace("--", "-");
-        }
-
-        return string.IsNullOrWhiteSpace(slug) ? "tin-dang" : slug;
-    }
 }
 
 <section class="hero-bg p-4 p-md-5 mb-4">
@@ -103,34 +67,10 @@
         <span class="text-muted small">@Model.Listings.Count bài đăng</span>
     </div>
 
-    <div class="row g-3">
-        @foreach (var listing in Model.Listings)
-        {
-            var avg = listing.UserId.HasValue && Model.UserRatingAvg.TryGetValue(listing.UserId.Value, out var value) ? value : 0;
-            var full = (int)Math.Floor(avg);
-            <div class="col-6 col-md-4 col-lg-2 d-flex">
-                <a class="card h-100 w-100 border-0 shadow-sm text-decoration-none" href="/Bai-dang/@ToSlug(listing.Title)-@listing.Id">
-                    <img src="@(listing.FirstImageUrl ?? "/favicon.ico")" class="card-img-top" style="height:140px; object-fit:cover;" alt="@listing.Title" />
-                    <div class="card-body">
-                        <h3 class="h6 text-dark text-truncate">@listing.Title</h3>
-                        <p class="text-danger fw-bold mb-2">@string.Format("{0:N0} đ", listing.Price ?? 0)</p>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <img src="@(listing.UserAvatar ?? "/favicon.ico")" class="rounded-circle border" style="width:28px;height:28px;object-fit:cover" alt="avatar" />
-                            <div class="small text-warning">
-                                @for (var i = 0; i < full && i < 5; i++)
-                                {
-                                    <span>★</span>
-                                }
-                                @for (var i = full; i < 5; i++)
-                                {
-                                    <span class="text-secondary">☆</span>
-                                }
-                            </div>
-                        </div>
-                        <p class="small text-muted mb-0">@(listing.CreatedAt?.ToString("dd/MM/yyyy") ?? string.Empty)</p>
-                    </div>
-                </a>
-            </div>
-        }
-    </div>
+    @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", new Tin_Tot_Website.Models.ListingCardSectionViewModel
+    {
+        Listings = Model.Listings,
+        UserRatingAvg = Model.UserRatingAvg,
+        EmptyMessage = "Chưa có bài đăng mới nhất."
+        })
 </section>

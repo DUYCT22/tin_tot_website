@@ -17,7 +17,6 @@ namespace TinTot.Application.Services.Home
             var banners = await _homeReadRepository.GetActiveBannersAsync();
             var categories = await _homeReadRepository.GetRootCategoriesAsync();
             var listings = await _homeReadRepository.GetLatestListingsAsync(currentUserId, take);
-
             var userIds = listings
                 .Where(x => x.UserId.HasValue)
                 .Select(x => x.UserId!.Value)

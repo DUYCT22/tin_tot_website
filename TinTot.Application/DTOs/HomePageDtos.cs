@@ -23,5 +23,6 @@ namespace TinTot.Application.DTOs
         public DateTime? CreatedAt { get; set; }
         public string? UserAvatar { get; set; }
         public string? FirstImageUrl { get; set; }
+        public decimal UserRatingAverage { get; set; }
     }
 }
