@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TinTot.Application.DTOs.Listing;
 using TinTot.Application.DTOs.Users;
@@ -80,19 +81,7 @@ namespace Tin_Tot_Website.Controllers
             }
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                await _listingService.DeleteAsync(id);
-                return Ok(new { message = "Xóa bài đăng thành công." });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-        }
+        
         private static async Task<IReadOnlyCollection<AvatarUploadDto>> ToImageUploadsAsync(IReadOnlyCollection<IFormFile>? images)
         {
             if (images is null || images.Count == 0)

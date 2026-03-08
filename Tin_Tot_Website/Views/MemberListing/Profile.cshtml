@@ -1,0 +1,279 @@
+﻿@model Tin_Tot_Website.Models.ProfilePageViewModel
+@{
+    ViewData["Title"] = "Trang cá nhân";
+    var placeholder = "https://placehold.co/300x220?text=Tin+Tot";
+    var defaultAvatar = "https://placehold.co/400x400?text=Avatar";
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="position-relative">
+                <img id="currentAvatar" src="@(string.IsNullOrWhiteSpace(Model.User.Avatar) ? defaultAvatar : Model.User.Avatar)" class="w-100 rounded-top" style="height:320px;object-fit:cover" alt="avatar" />
+                <button class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                    <i class="bi bi-camera me-1"></i> Đổi ảnh
+                </button>
+            </div>
+            <div class="card-body">
+                <h4 id="profileFullName" class="mb-2">@Model.User.FullName</h4>
+                <p class="mb-1"><i class="bi bi-envelope me-1"></i>@Model.User.Email</p>
+                <p class="mb-1"><i class="bi bi-telephone me-1"></i><span id="profilePhone">@Model.User.Phone</span></p>
+                <p class="mb-3 text-muted"><i class="bi bi-person-circle me-1"></i>Tham gia: @Model.User.CreatedAt.ToString("dd/MM/yyyy")</p>
+                <div class="d-flex gap-4">
+                    <div><strong>@Model.User.FollowersCount</strong><div class="text-muted small">Người theo dõi</div></div>
+                    <div><strong>@Model.User.RatingsCount</strong><div class="text-muted small">Đánh giá</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-body">
+                <h5 class="mb-3">Chỉnh sửa thông tin</h5>
+                <div id="profileAlert" class="alert d-none"></div>
+                <div class="mb-2">
+                    <label class="form-label">Họ và tên</label>
+                    <input id="fullNameInput" class="form-control" value="@Model.User.FullName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input id="phoneInput" class="form-control" value="@Model.User.Phone" />
+                </div>
+                <button id="saveProfileBtn" class="btn btn-primary w-100" type="button">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#showing" type="button">Tin đang hiển thị</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pending" type="button">Tin chờ duyệt</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#sold" type="button">Tin đã bán</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#followers" type="button">Người theo dõi</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ratings" type="button">Đánh giá</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="showing">@await Html.PartialAsync("_ProfileListingGrid", Model.ListingShowing)</div>
+            <div class="tab-pane fade" id="pending">@await Html.PartialAsync("_ProfileListingGrid", Model.ListingPendingApproval)</div>
+            <div class="tab-pane fade" id="sold">@await Html.PartialAsync("_ProfileListingGrid", Model.ListingSold)</div>
+            <div class="tab-pane fade" id="followers">
+                @if (Model.Followers.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var follower in Model.Followers)
+                        {
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="@(string.IsNullOrWhiteSpace(follower.Avatar) ? defaultAvatar : follower.Avatar)" class="rounded-circle" style="width:44px;height:44px;object-fit:cover" />
+                                    <div>@follower.FullName</div>
+                                </div>
+                                <small class="text-muted">@(follower.FollowedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")</small>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">Bạn chưa có người theo dõi.</div>
+                }
+            </div>
+            <div class="tab-pane fade" id="ratings">
+                @if (Model.Ratings.Any())
+                {
+                    @foreach (var rating in Model.Ratings)
+                    {
+                        <div class="card border-0 shadow-sm mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between"><strong>@rating.ReviewerName</strong><span class="text-warning">@rating.Score.ToString("0.0") ★</span></div>
+                                <div class="small text-muted mb-1">@(rating.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")</div>
+                                <div>@rating.Comment</div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-info">Bạn chưa có đánh giá nào.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Sửa danh mục / giá</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input id="editListingId" type="hidden" />
+                <div class="mb-3">
+                    <label class="form-label">Danh mục</label>
+                    <select id="editCategoryId" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Giá</label>
+                    <input id="editPrice" type="number" min="0" class="form-control" />
+                </div>
+                <div id="editAlert" class="alert d-none"></div>
+            </div>
+            <div class="modal-footer"><button id="saveListingEditBtn" class="btn btn-primary" type="button">Lưu</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Đổi ảnh đại diện</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input id="avatarInput" type="file" accept="image/*" class="form-control" />
+                <img id="avatarPreview" class="w-100 rounded mt-3 d-none" style="max-height:280px;object-fit:cover" />
+                <div id="avatarAlert" class="alert d-none mt-2"></div>
+            </div>
+            <div class="modal-footer"><button id="saveAvatarBtn" class="btn btn-primary" type="button">Lưu ảnh</button></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            if (!token) { window.location.href = '/login'; return; }
+
+            const categories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Categories));
+
+            const showAlert = (el, type, message) => {
+                el.className = `alert alert-${type}`;
+                el.textContent = message;
+            };
+
+            document.querySelectorAll('.btn-mark-sold').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('Xác nhận đánh dấu đã bán?')) return;
+                    const id = btn.dataset.id;
+                    const response = await fetch(`/api/member/listings/${id}/mark-sold`, {
+                        method: 'POST', headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const result = await response.json();
+                    if (!response.ok) { alert(result.message || 'Không thể cập nhật.'); return; }
+                    window.location.reload();
+                });
+            });
+
+            const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+            const editCategoryId = document.getElementById('editCategoryId');
+
+            const loadCategoryOptions = (selectedId) => {
+                const parentMap = {};
+                categories.forEach(c => { if (!c.parentId) parentMap[c.id] = { ...c, children: [] }; });
+                categories.forEach(c => { if (c.parentId && parentMap[c.parentId]) parentMap[c.parentId].children.push(c); });
+
+                editCategoryId.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+                Object.values(parentMap).forEach(parent => {
+                    const parentOpt = document.createElement('option');
+                    parentOpt.value = parent.id; parentOpt.textContent = `📁 ${parent.name}`; parentOpt.disabled = true;
+                    editCategoryId.appendChild(parentOpt);
+                    parent.children.forEach(child => {
+                        const opt = document.createElement('option');
+                        opt.value = child.id; opt.textContent = `↳ ${child.name}`;
+                        editCategoryId.appendChild(opt);
+                    });
+                });
+
+                if (selectedId) editCategoryId.value = selectedId;
+            };
+
+            document.querySelectorAll('.btn-open-edit').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('editListingId').value = btn.dataset.id;
+                    document.getElementById('editPrice').value = btn.dataset.price;
+                    loadCategoryOptions(btn.dataset.categoryId);
+                    document.getElementById('editAlert').className = 'alert d-none';
+                    editModal.show();
+                });
+            });
+
+            document.getElementById('saveListingEditBtn').addEventListener('click', async () => {
+                const id = document.getElementById('editListingId').value;
+                const response = await fetch(`/api/member/listings/${id}/quick-update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ categoryId: Number(editCategoryId.value), price: Number(document.getElementById('editPrice').value) })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    showAlert(document.getElementById('editAlert'), 'danger', result.message || 'Cập nhật thất bại.');
+                    return;
+                }
+                window.location.reload();
+            });
+
+            document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+                const formData = new FormData();
+                formData.append('fullName', document.getElementById('fullNameInput').value.trim());
+                formData.append('phone', document.getElementById('phoneInput').value.trim());
+
+                const response = await fetch('/api/member/profile/update', {
+                    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+                });
+                const result = await response.json();
+                const profileAlert = document.getElementById('profileAlert');
+
+                if (!response.ok) {
+                    showAlert(profileAlert, 'danger', result.message || 'Cập nhật thất bại.');
+                    return;
+                }
+
+                showAlert(profileAlert, 'success', result.message || 'Đã cập nhật.');
+                document.getElementById('profileFullName').textContent = result.fullName;
+                document.getElementById('profilePhone').textContent = result.phone;
+
+                const rawProfile = localStorage.getItem('tin_tot_user');
+                if (rawProfile) {
+                    const profile = JSON.parse(rawProfile);
+                    profile.fullName = result.fullName;
+                    localStorage.setItem('tin_tot_user', JSON.stringify(profile));
+                }
+            });
+
+            document.getElementById('avatarInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const preview = document.getElementById('avatarPreview');
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('d-none');
+            });
+
+            document.getElementById('saveAvatarBtn').addEventListener('click', async () => {
+                const file = document.getElementById('avatarInput').files[0];
+                if (!file) {
+                    showAlert(document.getElementById('avatarAlert'), 'danger', 'Vui lòng chọn ảnh.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                const response = await fetch('/api/member/profile/avatar', {
+                    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    showAlert(document.getElementById('avatarAlert'), 'danger', result.message || 'Đổi ảnh thất bại.');
+                    return;
+                }
+
+                document.getElementById('currentAvatar').src = result.avatarUrl;
+                showAlert(document.getElementById('avatarAlert'), 'success', result.message || 'Thành công.');
+
+                const rawProfile = localStorage.getItem('tin_tot_user');
+                if (rawProfile) {
+                    const profile = JSON.parse(rawProfile);
+                    profile.avatar = result.avatarUrl;
+                    localStorage.setItem('tin_tot_user', JSON.stringify(profile));
+                }
+            });
+        })();
+    </script>
+}
