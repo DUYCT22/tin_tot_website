@@ -81,7 +81,24 @@ namespace Tin_Tot_Website.Controllers
             }
         }
 
-        
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var actorUserId = GetActorUserId();
+                await _listingService.DeleteAsync(id, actorUserId);
+                return Ok(new { message = "Xóa bài đăng thành công." });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
         private static async Task<IReadOnlyCollection<AvatarUploadDto>> ToImageUploadsAsync(IReadOnlyCollection<IFormFile>? images)
         {
             if (images is null || images.Count == 0)

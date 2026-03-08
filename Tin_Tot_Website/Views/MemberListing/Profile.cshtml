@@ -141,7 +141,12 @@
             const token = localStorage.getItem('tin_tot_token');
             if (!token) { window.location.href = '/login'; return; }
 
-            const categories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Categories));
+            const rawCategories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Categories));
+            const categories = (rawCategories || []).map(c => ({
+                id: c.id ?? c.Id,
+                name: c.name ?? c.Name,
+                parentId: c.parentId ?? c.ParentId
+            }));
 
             const showAlert = (el, type, message) => {
                 el.className = `alert alert-${type}`;
@@ -160,7 +165,19 @@
                     window.location.reload();
                 });
             });
-
+            document.querySelectorAll('.btn-delete-listing').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('Xác nhận xóa bài đăng?')) return;
+                    const id = btn.dataset.id;
+                    const response = await fetch(`/api/listings/${id}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const result = await response.json();
+                    if (!response.ok) { alert(result.message || 'Không thể xóa bài đăng.'); return; }
+                    window.location.reload();
+                });
+            });
             const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
             const editCategoryId = document.getElementById('editCategoryId');
 
@@ -181,7 +198,8 @@
                     });
                 });
 
-                if (selectedId) editCategoryId.value = selectedId;
+                const normalizedSelectedId = Number(selectedId);
+                if (normalizedSelectedId > 0) editCategoryId.value = String(normalizedSelectedId);
             };
 
             document.querySelectorAll('.btn-open-edit').forEach(btn => {

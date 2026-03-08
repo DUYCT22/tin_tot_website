@@ -33,7 +33,7 @@ namespace Tin_Tot_Website.Controllers
             _avatarStorageService = avatarStorageService;
         }
 
-        [HttpGet("dang-tin")]
+        [HttpGet("Dang-tin")]
         public async Task<IActionResult> Post()
         {
             var parentCategories = await _dbContext.Categories
@@ -61,7 +61,7 @@ namespace Tin_Tot_Website.Controllers
             return Ok(subCategories);
         }
 
-        [HttpGet("tin-da-luu")]
+        [HttpGet("Tin-da-luu")]
         public async Task<IActionResult> Saved()
         {
             var currentUserId = GetCurrentUserId();
@@ -99,7 +99,7 @@ namespace Tin_Tot_Website.Controllers
             return View(favorites);
         }
 
-        [HttpGet("trang-ca-nhan")]
+        [HttpGet("Trang-ca-nhan")]
         public async Task<IActionResult> Profile()
         {
             var currentUserId = GetCurrentUserId();

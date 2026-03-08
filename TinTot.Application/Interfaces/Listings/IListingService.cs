@@ -7,6 +7,6 @@ namespace TinTot.Application.Interfaces.Listings
     {
         Task<ListingDto> CreateAsync(ListingCreateDto dto, IReadOnlyCollection<AvatarUploadDto> imageUploads);
         Task<ListingDto> UpdateAsync(int id, ListingUpdateDto dto);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(int id, int? actorUserId);
     }
 }

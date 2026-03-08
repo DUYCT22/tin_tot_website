@@ -43,7 +43,7 @@ namespace TinTot.Application.Services.Listings
                 Description = sanitizedDescription,
                 Price = dto.Price,
                 Location = dto.Location.Trim(),
-                Status = dto.Status,
+                Status = 0,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -81,9 +81,13 @@ namespace TinTot.Application.Services.Listings
             return Map(listing);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int? actorUserId)
         {
+            if (!actorUserId.HasValue)
+                throw new UnauthorizedAccessException("Phiên đăng nhập không hợp lệ.");
             var listing = await _listingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException("Bài đăng không tồn tại.");
+            if (listing.UserId != actorUserId.Value)
+                throw new UnauthorizedAccessException("Bạn không có quyền xóa bài đăng này.");
             await _listingImageService.DeleteByListingIdAsync(id);
 
             await _listingRepository.DeleteAsync(listing);
