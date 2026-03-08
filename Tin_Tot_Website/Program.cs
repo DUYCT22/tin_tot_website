@@ -135,6 +135,18 @@ app.MapControllerRoute(
     pattern: "Trang-Chu",
     defaults: new { controller = "Home", action = "Index" });
 app.MapControllerRoute(
+    name: "FriendlyCreateListing",
+    pattern: "Dang-tin",
+    defaults: new { controller = "MemberListing", action = "Post" });
+app.MapControllerRoute(
+    name: "FriendlyFavorite",
+    pattern: "Tin-da-luu",
+    defaults: new { controller = "MemberListing", action = "Saved" });
+app.MapControllerRoute(
+    name: "FriendlyProfile",
+    pattern: "Trang-ca-nhan",
+    defaults: new { controller = "MemberListing", action = "Profile" });
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

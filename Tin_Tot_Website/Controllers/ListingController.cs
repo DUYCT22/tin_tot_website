@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TinTot.Application.DTOs.Listing;
 using TinTot.Application.DTOs.Users;
@@ -85,8 +86,13 @@ namespace Tin_Tot_Website.Controllers
         {
             try
             {
-                await _listingService.DeleteAsync(id);
+                var actorUserId = GetActorUserId();
+                await _listingService.DeleteAsync(id, actorUserId);
                 return Ok(new { message = "Xóa bài đăng thành công." });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {

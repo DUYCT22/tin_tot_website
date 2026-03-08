@@ -27,13 +27,13 @@ namespace Tin_Tot_Website.Controllers
             _authService = authService;
             _jwtTokenService = jwtTokenService;
         }
-        [HttpGet("~/login")]
+        [HttpGet("~/Dang-nhap")]
         public IActionResult LoginPage()
         {
             return View("~/Views/User/Login.cshtml");
         }
 
-        [HttpGet("~/register")]
+        [HttpGet("~/Dang-ky")]
         public IActionResult RegisterPage()
         {
             return View("~/Views/User/Register.cshtml");

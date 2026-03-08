@@ -7,6 +7,7 @@ using TinTot.Application.DTOs.Listing;
 using TinTot.Application.DTOs.Users;
 using TinTot.Application.Interfaces.Images;
 using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Common;
 using TinTot.Domain.Entities;
 
 namespace TinTot.Application.Services.Listings
@@ -24,7 +25,8 @@ namespace TinTot.Application.Services.Listings
 
         public async Task<ListingDto> CreateAsync(ListingCreateDto dto, IReadOnlyCollection<AvatarUploadDto> imageUploads)
         {
-            Validate(dto.Title, dto.Description, dto.Location, dto.Price);
+            var sanitizedDescription = HtmlContentSanitizer.Sanitize(dto.Description);
+            Validate(dto.Title, sanitizedDescription, dto.Location, dto.Price);
             ValidateImageCount(imageUploads.Count);
 
             if (!await _listingRepository.UserExistsAsync(dto.ActorUserId))
@@ -38,10 +40,10 @@ namespace TinTot.Application.Services.Listings
                 UserId = dto.ActorUserId,
                 CategoryId = dto.CategoryId,
                 Title = dto.Title.Trim(),
-                Description = dto.Description.Trim(),
+                Description = sanitizedDescription,
                 Price = dto.Price,
                 Location = dto.Location.Trim(),
-                Status = dto.Status,
+                Status = 0,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -59,14 +61,15 @@ namespace TinTot.Application.Services.Listings
         public async Task<ListingDto> UpdateAsync(int id, ListingUpdateDto dto)
         {
             var listing = await _listingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException("Bài đăng không tồn tại.");
-            Validate(dto.Title, dto.Description, dto.Location, dto.Price);
+            var sanitizedDescription = HtmlContentSanitizer.Sanitize(dto.Description);
+            Validate(dto.Title, sanitizedDescription, dto.Location, dto.Price);
 
             if (!await _listingRepository.CategoryExistsAsync(dto.CategoryId))
                 throw new InvalidOperationException("CategoryId không tồn tại.");
 
             listing.CategoryId = dto.CategoryId;
             listing.Title = dto.Title.Trim();
-            listing.Description = dto.Description.Trim();
+            listing.Description = sanitizedDescription;
             listing.Price = dto.Price;
             listing.Location = dto.Location.Trim();
             listing.Status = dto.Status;
@@ -78,9 +81,13 @@ namespace TinTot.Application.Services.Listings
             return Map(listing);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int? actorUserId)
         {
+            if (!actorUserId.HasValue)
+                throw new UnauthorizedAccessException("Phiên đăng nhập không hợp lệ.");
             var listing = await _listingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException("Bài đăng không tồn tại.");
+            if (listing.UserId != actorUserId.Value)
+                throw new UnauthorizedAccessException("Bạn không có quyền xóa bài đăng này.");
             await _listingImageService.DeleteByListingIdAsync(id);
 
             await _listingRepository.DeleteAsync(listing);
@@ -91,7 +98,7 @@ namespace TinTot.Application.Services.Listings
         {
             if (string.IsNullOrWhiteSpace(title))
                 throw new InvalidOperationException("Title là bắt buộc.");
-            if (string.IsNullOrWhiteSpace(description))
+            if (string.IsNullOrWhiteSpace(HtmlContentSanitizer.ToPlainText(description)))
                 throw new InvalidOperationException("Description là bắt buộc.");
             if (string.IsNullOrWhiteSpace(location))
                 throw new InvalidOperationException("Location là bắt buộc.");

@@ -14,7 +14,7 @@ else
             var avg = listing.UserId.HasValue && Model.UserRatingAvg.TryGetValue(listing.UserId.Value, out var value) ? value : listing.UserRatingAverage;
             var full = (int)Math.Floor(avg);
             var key = EntityKeyService.ProtectId("listing", listing.Id);
-            <div class="col-6 col-md-4 col-lg-3 d-flex">
+            <div class="col-6 col-md-4 col-lg-2 d-flex">
                 <a class="card h-100 w-100 border-0 shadow-sm text-decoration-none" href="@Url.Action("Detail", "PublicListing", new { slug = SlugHelper.ToSlug(listing.Title), key })">
                     <img src="@(listing.FirstImageUrl ?? "/favicon.ico")" class="card-img-top" style="height:170px; object-fit:cover;" alt="@listing.Title" />
                     <div class="card-body">

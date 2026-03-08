@@ -1,0 +1,100 @@
+﻿@model List<Tin_Tot_Website.Models.SavedListingViewModel>
+@{
+    ViewData["Title"] = "Tin đã lưu";
+    var placeholder = "https://placehold.co/300x220?text=Tin+Tot";
+}
+
+<h2 class="mb-4">Tin đã lưu</h2>
+
+@if (Model.Any())
+{
+    <div id="savedListingGrid" class="row g-3">
+        @foreach (var item in Model)
+        {
+            <div class="col-12" id="favorite-@item.FavoriteId">
+                <div class="card border-0 shadow-sm">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-3">
+                            <a href="@item.DetailUrl" target="_blank" rel="noopener noreferrer">
+                                <img src="@(string.IsNullOrWhiteSpace(item.ImageUrl) ? placeholder : item.ImageUrl)" class="img-fluid rounded-start w-100" style="height: 180px; object-fit: cover;" alt="@item.Title" />
+                            </a>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <a href="@item.DetailUrl" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark">
+                                        <h5 class="card-title mb-1">@item.Title</h5>
+                                    </a>
+                                    <p class="text-danger fw-bold mb-1">@item.Price.ToString("N0") đ</p>
+                                    <p class="text-muted mb-2">@item.Location</p>
+                                    @if (item.SavedAt.HasValue)
+                                    {
+                                        <small class="text-secondary">Lưu lúc: @item.SavedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                    }
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm btn-unfavorite" data-listing-key="@item.ListingKey" data-favorite-id="@item.FavoriteId" type="button">
+                                    Bỏ lưu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info">Bạn chưa lưu tin đăng nào.</div>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            document.querySelectorAll('.btn-unfavorite').forEach(button => {
+                button.addEventListener('click', async () => {
+                    if (!token) {
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    const listingKey = button.dataset.listingKey;
+                    const favoriteId = button.dataset.favoriteId;
+                    button.disabled = true;
+                    button.textContent = 'Đang xóa...';
+
+                    try {
+                        const response = await fetch(`/api/interactions/favorites/${listingKey}`, {
+                            method: 'DELETE',
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            alert(result.message || 'Không thể bỏ lưu tin đăng.');
+                            return;
+                        }
+
+                        document.getElementById(`favorite-${favoriteId}`)?.remove();
+
+                        if (!document.querySelector('.btn-unfavorite')) {
+                            document.getElementById('savedListingGrid')?.remove();
+                            const emptyState = document.createElement('div');
+                            emptyState.className = 'alert alert-info';
+                            emptyState.textContent = 'Bạn chưa lưu tin đăng nào.';
+                            document.body.querySelector('main.container')?.appendChild(emptyState);
+                        }
+                    } catch {
+                        alert('Không thể kết nối máy chủ. Vui lòng thử lại.');
+                    } finally {
+                        button.disabled = false;
+                        button.textContent = 'Bỏ lưu';
+                    }
+                });
+            });
+        })();
+    </script>
+}

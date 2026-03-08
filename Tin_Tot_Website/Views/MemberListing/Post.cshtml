@@ -1,0 +1,262 @@
+﻿@model Tin_Tot_Website.Models.ListingPostPageViewModel
+@{
+    ViewData["Title"] = "Đăng tin";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Đăng tin</h2>
+    <small class="text-danger">Vui lòng kiểm tra kỹ tiêu đề, mô tả, địa chỉ và ảnh trước khi đăng vì không cho phép sửa đổi.</small>
+</div>
+
+<form id="postListingForm" class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <div id="formAlert" class="alert d-none" role="alert"></div>
+
+        <div class="mb-3">
+            <label for="parentCategoryDropdown" class="form-label fw-semibold">Danh mục cha</label>
+            <select id="parentCategoryDropdown" class="form-select" required>
+                <option value="">-- Chọn danh mục cha --</option>
+                @foreach (var parent in Model.ParentCategories)
+                {
+                    <option value="@parent.Id">@parent.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="subCategoryDropdown" class="form-label fw-semibold">Danh mục con</label>
+            <select id="subCategoryDropdown" class="form-select" required>
+                <option value="">-- Chọn danh mục con --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="titleInput" class="form-label fw-semibold">Tiêu đề</label>
+            <input id="titleInput" class="form-control" maxlength="255" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="descriptionInput" class="form-label fw-semibold">Chi tiết</label>
+            <textarea id="descriptionInput" class="form-control" rows="8" maxlength="6000" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="priceInput" class="form-label fw-semibold">Giá</label>
+            <input id="priceInput" type="number" min="0" step="1000" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Địa chỉ (trước sáp nhập)</label>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select id="provincesSelect" class="form-select" required>
+                        <option value="">Tỉnh/Thành</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="districtsSelect" class="form-select" required>
+                        <option value="">Quận/Huyện</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="wardsSelect" class="form-select" required>
+                        <option value="">Phường/Xã</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input id="houseNumber" class="form-control" placeholder="Số nhà, tên đường" required />
+                </div>
+            </div>
+            <input id="fullAddress" type="hidden" />
+        </div>
+
+        <div class="mb-4">
+            <label for="imagesInput" class="form-label fw-semibold">Hình ảnh</label>
+            <input id="imagesInput" type="file" class="form-control" multiple accept="image/*" required />
+            <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span class="label">Đăng tin</span>
+            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            const form = document.getElementById('postListingForm');
+            const parentCategoryDropdown = document.getElementById('parentCategoryDropdown');
+            const subCategoryDropdown = document.getElementById('subCategoryDropdown');
+            const imagesInput = document.getElementById('imagesInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const formAlert = document.getElementById('formAlert');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const descriptionEditor = CKEDITOR.replace('descriptionInput', {
+                allowedContent: true,
+                removeButtons: 'Subscript,Superscript,Anchor,Styles,Specialchar'
+            });
+
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const setAlert = (message, type) => {
+                formAlert.className = `alert alert-${type}`;
+                formAlert.textContent = message;
+            };
+
+            const updateFullAddress = () => {
+                const province = document.getElementById('provincesSelect').selectedOptions[0]?.text || '';
+                const district = document.getElementById('districtsSelect').selectedOptions[0]?.text || '';
+                const ward = document.getElementById('wardsSelect').selectedOptions[0]?.text || '';
+                const houseNumber = document.getElementById('houseNumber').value.trim();
+
+                document.getElementById('fullAddress').value = [houseNumber, ward, district, province]
+                    .filter(Boolean)
+                    .join(', ');
+            };
+
+            const populateDropdown = (selectId, data) => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">Chọn</option>';
+                data.forEach(item => {
+                    if (!item.id || !item.name) return;
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                });
+            };
+
+            const fetchProvinces = async () => {
+                try {
+                    const response = await fetch('https://esgoo.net/api-tinhthanh/1/0.htm');
+                    const data = await response.json();
+                    if (data.error === 0 && data.data) {
+                        populateDropdown('provincesSelect', data.data);
+                    }
+                } catch {
+                    setAlert('Không tải được dữ liệu địa chỉ. Bạn vẫn có thể thử lại sau.', 'warning');
+                }
+            };
+
+            parentCategoryDropdown.addEventListener('change', async () => {
+                const parentId = parentCategoryDropdown.value;
+                subCategoryDropdown.innerHTML = '<option value="">-- Chọn danh mục con --</option>';
+                if (!parentId) return;
+
+                const response = await fetch(`/api/listing-form/sub-categories?parentId=${parentId}`);
+                const categories = await response.json();
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    subCategoryDropdown.appendChild(option);
+                });
+            });
+
+            imagesInput.addEventListener('change', () => {
+                imagePreview.innerHTML = '';
+                [...imagesInput.files].forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const image = document.createElement('img');
+                    image.className = 'rounded border';
+                    image.style.width = '100px';
+                    image.style.height = '100px';
+                    image.style.objectFit = 'cover';
+                    image.src = URL.createObjectURL(file);
+                    imagePreview.appendChild(image);
+                });
+            });
+
+            document.getElementById('provincesSelect').addEventListener('change', async (event) => {
+                const provinceId = event.target.value;
+                document.getElementById('districtsSelect').innerHTML = '<option value="">Quận/Huyện</option>';
+                document.getElementById('wardsSelect').innerHTML = '<option value="">Phường/Xã</option>';
+                updateFullAddress();
+                if (!provinceId) return;
+
+                const response = await fetch(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`);
+                const data = await response.json();
+                if (data.error === 0 && data.data) {
+                    populateDropdown('districtsSelect', data.data);
+                }
+            });
+
+            document.getElementById('districtsSelect').addEventListener('change', async (event) => {
+                const districtId = event.target.value;
+                document.getElementById('wardsSelect').innerHTML = '<option value="">Phường/Xã</option>';
+                updateFullAddress();
+                if (!districtId) return;
+
+                const response = await fetch(`https://esgoo.net/api-tinhthanh/3/${districtId}.htm`);
+                const data = await response.json();
+                if (data.error === 0 && data.data) {
+                    populateDropdown('wardsSelect', data.data);
+                }
+            });
+
+            document.getElementById('wardsSelect').addEventListener('change', updateFullAddress);
+            document.getElementById('houseNumber').addEventListener('input', updateFullAddress);
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                setAlert('', 'info');
+
+                updateFullAddress();
+                const location = document.getElementById('fullAddress').value;
+                if (!location) {
+                    setAlert('Vui lòng nhập đầy đủ địa chỉ.', 'danger');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.querySelector('.label').textContent = 'Đang xử lý...';
+                submitBtn.querySelector('.spinner-border').classList.remove('d-none');
+
+                const payload = new FormData();
+                payload.append('categoryId', subCategoryDropdown.value);
+                payload.append('title', document.getElementById('titleInput').value.trim());
+                payload.append('description', descriptionEditor.getData().trim());
+                payload.append('price', document.getElementById('priceInput').value);
+                payload.append('location', location);
+                payload.append('status', '1');
+
+                [...imagesInput.files].forEach(file => payload.append('images', file));
+
+                try {
+                    const response = await fetch('/api/listings', {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}` },
+                        body: payload
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        setAlert(result.message || 'Đăng tin thất bại.', 'danger');
+                        return;
+                    }
+
+                    setAlert('Đăng tin thành công.', 'success');
+                    form.reset();
+                    descriptionEditor.setData('');
+                    imagePreview.innerHTML = '';
+                    subCategoryDropdown.innerHTML = '<option value="">-- Chọn danh mục con --</option>';
+                } catch {
+                    setAlert('Không thể kết nối máy chủ. Vui lòng thử lại.', 'danger');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.label').textContent = 'Đăng tin';
+                    submitBtn.querySelector('.spinner-border').classList.add('d-none');
+                }
+            });
+
+            fetchProvinces();
+        })();
+    </script>
+}

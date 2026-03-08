@@ -37,6 +37,16 @@
     .carousel-control-next-icon {
         filter: invert(1);
     }
+
+    .listing-description p {
+        margin-bottom: 0.75rem;
+    }
+
+    .listing-description ul,
+    .listing-description ol {
+        padding-left: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
 </style>
 
 <section class="mb-4">
@@ -111,7 +121,7 @@
 
 <section class="mb-4">
     <h2 class="h5">Chi tiết mô tả</h2>
-    <p class="mb-0" style="white-space: pre-wrap;">@Model.Listing.Description</p>
+    <div class="mb-0 listing-description">@Html.Raw(Model.Listing.Description)</div>
 </section>
 
 <section>
