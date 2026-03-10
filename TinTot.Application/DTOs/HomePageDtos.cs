@@ -13,6 +13,18 @@ namespace TinTot.Application.DTOs
         public List<HomeListingDto> Listings { get; set; } = new();
         public Dictionary<int, decimal> UserRatingAvg { get; set; } = new();
     }
+    public class AllListingsPageDto
+    {
+        public List<HomeListingDto> Listings { get; set; } = new();
+        public List<CategoryDto> Categories { get; set; } = new();
+        public Dictionary<int, decimal> UserRatingAvg { get; set; } = new();
+        public int? SelectedCategoryId { get; set; }
+        public string SelectedSort { get; set; } = "newest";
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 12;
+        public int TotalCount { get; set; }
+        public bool HasMore => Page * PageSize < TotalCount;
+    }
 
     public class HomeListingDto
     {

@@ -1,0 +1,132 @@
+﻿@model TinTot.Application.DTOs.AllListingsPageDto
+@{
+    ViewData["Title"] = "Tất cả bài đăng";
+
+}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+        <h1 class="h4 fw-bold mb-1">Tất cả bài đăng</h1>
+        <p class="text-muted small mb-0"><span id="listingCount">@Model.TotalCount</span> bài đăng phù hợp</p>
+    </div>
+
+    <form class="d-flex flex-column flex-sm-row gap-2" method="get" asp-action="AllListings" asp-controller="Home">
+        <select class="form-select" name="categoryId" style="min-width: 220px;">
+            <option value="">Tất cả danh mục</option>
+            @foreach (var category in Model.Categories)
+            {
+                <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id ? "selected" : null)">@category.Name</option>
+            }
+        </select>
+
+        <select class="form-select" name="sort" style="min-width: 220px;">
+            <option value="newest" selected="@(Model.SelectedSort == "newest" ? "selected" : null)">Thời gian đăng: Mới</option>
+            <option value="oldest" selected="@(Model.SelectedSort == "oldest" ? "selected" : null)">Thời gian đăng: Cũ</option>
+            <option value="asc" selected="@(Model.SelectedSort == "asc" ? "selected" : null)">Giá: Thấp đến cao</option>
+            <option value="desc" selected="@(Model.SelectedSort == "desc" ? "selected" : null)">Giá: Cao đến thấp</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </form>
+</section>
+
+<section>
+    @if (!Model.Listings.Any())
+    {
+        <div class="alert alert-light border">Không có bài đăng phù hợp với bộ lọc.</div>
+    }
+    else
+    {
+        <div id="listingContainer" class="row g-3">
+            @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardItems.cshtml", new Tin_Tot_Website.Models.ListingCardSectionViewModel
+            {
+                Listings = Model.Listings,
+                UserRatingAvg = Model.UserRatingAvg,
+                EmptyMessage = string.Empty
+            })
+        </div>
+
+        <div class="text-center mt-3">
+            <button id="loadMoreBtn"
+                    type="button"
+                    class="btn btn-outline-primary"
+                    disabled="@(!Model.HasMore)">
+                @(!Model.HasMore ? "Đã hiển thị tất cả" : "Tải thêm")
+            </button>
+        </div>
+    }
+</section>
+
+<script>
+    (() => {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (!loadMoreBtn) return;
+
+        let currentPage = @Model.Page;
+        const pageSize = @Model.PageSize;
+        const totalCount = @Model.TotalCount;
+        let loadedCount = @Model.Listings.Count;
+        const categoryId = '@(Model.SelectedCategoryId?.ToString() ?? string.Empty)';
+        const sort = '@Model.SelectedSort';
+
+        const updateButtonState = () => {
+            if (loadedCount >= totalCount) {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'Đã hiển thị tất cả';
+                return;
+            }
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'Tải thêm';
+        };
+
+        updateButtonState();
+
+        loadMoreBtn.addEventListener('click', async () => {
+            if (loadMoreBtn.disabled) return;
+
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Đang tải...';
+
+            currentPage += 1;
+            const params = new URLSearchParams({
+                page: currentPage.toString(),
+                pageSize: pageSize.toString(),
+                sort
+            });
+
+            if (categoryId) {
+                params.set('categoryId', categoryId);
+            }
+
+            try {
+                const response = await fetch(`/Tat-ca-bai-dang/tai-them?${params.toString()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải thêm bài đăng.');
+                }
+
+                const html = await response.text();
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = html;
+                const newItems = tempContainer.querySelectorAll('.col-6.col-md-4.col-lg-2.d-flex');
+
+                if (newItems.length === 0) {
+                    loadedCount = totalCount;
+                    updateButtonState();
+                    return;
+                }
+
+                const listingContainer = document.getElementById('listingContainer');
+                listingContainer.insertAdjacentHTML('beforeend', html);
+                loadedCount += newItems.length;
+
+                newItems[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                updateButtonState();
+            } catch {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Tải thêm';
+            }
+        });
+    })();
+</script>

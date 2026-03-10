@@ -25,6 +25,27 @@ namespace Tin_Tot_Website.Controllers
             return View(model);
         }
 
+        [HttpGet("Tat-ca-bai-dang")]
+        public async Task<IActionResult> AllListings([FromQuery] int? categoryId, [FromQuery] string? sort)
+        {
+            var currentUserId = GetCurrentUserId();
+            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, page: 1, pageSize: 12);
+            return View(model);
+        }
+
+        [HttpGet("Tat-ca-bai-dang/tai-them")]
+        public async Task<IActionResult> AllListingsLoadMore([FromQuery] int page = 1, [FromQuery] int pageSize = 12, [FromQuery] int? categoryId = null, [FromQuery] string? sort = null)
+        {
+            var currentUserId = GetCurrentUserId();
+            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, page, pageSize);
+
+            return PartialView("~/Views/Shared/Components/_ListingCardItems.cshtml", new ListingCardSectionViewModel
+            {
+                Listings = model.Listings,
+                UserRatingAvg = model.UserRatingAvg,
+                EmptyMessage = string.Empty
+            });
+        }
         public IActionResult Privacy()
         {
             return View();

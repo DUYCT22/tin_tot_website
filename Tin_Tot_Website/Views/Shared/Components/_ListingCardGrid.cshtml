@@ -9,34 +9,6 @@
 else
 {
     <div class="row g-3">
-        @foreach (var listing in Model.Listings)
-        {
-            var avg = listing.UserId.HasValue && Model.UserRatingAvg.TryGetValue(listing.UserId.Value, out var value) ? value : listing.UserRatingAverage;
-            var full = (int)Math.Floor(avg);
-            var key = EntityKeyService.ProtectId("listing", listing.Id);
-            <div class="col-6 col-md-4 col-lg-2 d-flex">
-                <a class="card h-100 w-100 border-0 shadow-sm text-decoration-none" href="@Url.Action("Detail", "PublicListing", new { slug = SlugHelper.ToSlug(listing.Title), key })">
-                    <img src="@(listing.FirstImageUrl ?? "/favicon.ico")" class="card-img-top" style="height:170px; object-fit:cover;" alt="@listing.Title" />
-                    <div class="card-body">
-                        <h3 class="h6 text-dark text-truncate">@listing.Title</h3>
-                        <p class="text-danger fw-bold mb-2">@string.Format("{0:N0} đ", listing.Price ?? 0)</p>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <img src="@(listing.UserAvatar ?? "/favicon.ico")" class="rounded-circle border" style="width:28px;height:28px;object-fit:cover" alt="avatar" />
-                            <div class="small text-warning">
-                                @for (var i = 0; i < full && i < 5; i++)
-                                {
-                                    <span>★</span>
-                                }
-                                @for (var i = full; i < 5; i++)
-                                {
-                                    <span class="text-secondary">☆</span>
-                                }
-                            </div>
-                        </div>
-                        <p class="small text-muted mb-0">@(listing.CreatedAt?.ToString("dd/MM/yyyy") ?? string.Empty)</p>
-                    </div>
-                </a>
-            </div>
-        }
+        @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardItems.cshtml", Model)
     </div>
 }
