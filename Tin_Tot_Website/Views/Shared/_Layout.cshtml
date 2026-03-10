@@ -49,7 +49,19 @@
                         <a class="btn btn-outline-primary" href="/Dang-nhap">Đăng nhập</a>
                         <a class="btn btn-primary" href="/Dang-ky">Đăng ký</a>
                     </div>
-
+                    <div id="notificationActions" class="dropdown d-none me-2">
+                        <button class="btn btn-light border position-relative" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo" type="button">
+                            <i class="bi bi-bell"></i>
+                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-0" style="width: 360px; max-width: 90vw;">
+                            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                                <strong>Thông báo</strong>
+                                <button id="markAllReadBtn" class="btn btn-link btn-sm text-decoration-none" type="button">Đánh dấu đã đọc</button>
+                            </div>
+                            <div id="notificationListContainer" style="max-height: 360px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
                     <div id="userActions" class="dropdown d-none">
                         <button class="btn btn-light border dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
                             <img id="userAvatar" class="user-avatar" src="/favicon.ico" alt="Avatar" />
@@ -58,6 +70,7 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                             <li><span class="dropdown-item-text text-muted small">Đã đăng nhập</span></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Profile"><i class="bi bi-person-circle me-2"></i>Trang cá nhân</a></li>
+                            <li><a class="dropdown-item" asp-controller="Messages" asp-action="Index"><i class="bi bi-chat-dots me-2"></i>Tin nhắn</a></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Post"><i class="bi bi-pencil-square me-2"></i>Đăng tin</a></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Saved"><i class="bi bi-heart me-2"></i>Tin đã lưu</a></li>
                             <li><hr class="dropdown-divider" /></li>
@@ -81,13 +94,19 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        (() => {
+        (async () => {
             const tokenKey = 'tin_tot_token';
             const profileKey = 'tin_tot_user';
             const guestActions = document.getElementById('guestActions');
             const userActions = document.getElementById('userActions');
+            const notificationActions = document.getElementById('notificationActions');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationListContainer = document.getElementById('notificationListContainer');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
             const logoutBtn = document.getElementById('logoutBtn');
@@ -119,6 +138,53 @@
 
                     guestActions.classList.add('d-none');
                     userActions.classList.remove('d-none');
+                    notificationActions.classList.remove('d-none');
+
+                    const setUnreadBadge = (count) => {
+                        notificationBadge.textContent = count;
+                        notificationBadge.classList.toggle('d-none', !count || count <= 0);
+                    };
+
+                    const refreshUnreadCount = async () => {
+                        const resp = await fetch('/api/notifications/unread-count', { headers: { Authorization: `Bearer ${token}` } });
+                        if (!resp.ok) return;
+                        const data = await resp.json();
+                        setUnreadBadge(data.unreadCount || 0);
+                    };
+
+                    const loadNotificationList = async () => {
+                        const resp = await fetch('/api/notifications/list', { headers: { Authorization: `Bearer ${token}` } });
+                        if (!resp.ok) return;
+                        notificationListContainer.innerHTML = await resp.text();
+                    };
+
+                    notificationBtn?.addEventListener('click', async () => {
+                        await loadNotificationList();
+                    });
+
+                    markAllReadBtn?.addEventListener('click', async () => {
+                        const resp = await fetch('/api/notifications/mark-all-read', {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (!resp.ok) return;
+                        await loadNotificationList();
+                        setUnreadBadge(0);
+                    });
+
+                    await refreshUnreadCount();
+
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl('/hubs/notifications')
+                        .withAutomaticReconnect()
+                        .build();
+
+                    connection.on('ReceiveNotification', (payload) => {
+                        const count = payload?.unreadCount ?? 0;
+                        setUnreadBadge(count);
+                    });
+
+                    connection.start().catch(() => {});
                 } catch {
                     localStorage.removeItem(profileKey);
                     localStorage.removeItem(tokenKey);

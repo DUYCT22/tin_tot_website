@@ -17,7 +17,15 @@ namespace TinTot.Infrastructure.Repositories
         public Task<bool> ListingExistsAsync(int listingId) => _context.Listings.AnyAsync(x => x.Id == listingId);
 
         public Task<int?> GetSellerIdByListingIdAsync(int listingId) => _context.Listings.Where(x => x.Id == listingId).Select(x => x.UserId).FirstOrDefaultAsync();
+        public Task<string?> GetUserDisplayNameAsync(int userId) => _context.Users
+            .Where(x => x.Id == userId)
+            .Select(x => x.FullName ?? x.LoginName)
+            .FirstOrDefaultAsync();
 
+        public Task<string?> GetListingTitleAsync(int listingId) => _context.Listings
+            .Where(x => x.Id == listingId)
+            .Select(x => x.Title)
+            .FirstOrDefaultAsync();
         public Task<bool> SellerExistsAsync(int sellerId) => _context.Users.AnyAsync(x => x.Id == sellerId && x.Status);
 
         public Task<bool> IsFavoritedAsync(int userId, int listingId) => _context.Favorites.AnyAsync(x => x.UserId == userId && x.ListingId == listingId);

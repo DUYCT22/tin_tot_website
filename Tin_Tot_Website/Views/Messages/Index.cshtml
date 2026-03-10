@@ -1,0 +1,174 @@
+﻿@model Tin_Tot_Website.Models.Messages.MessagesPageViewModel
+@{
+    ViewData["Title"] = "Tin nhắn";
+}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold">Cuộc trò chuyện</div>
+            <div id="conversationList" class="list-group list-group-flush" style="max-height:70vh; overflow:auto;"></div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header" id="chatHeader">Chọn người để bắt đầu trò chuyện</div>
+            <div class="card-body" id="chatBody" style="height:60vh; overflow:auto; background:#f8f9fa;"></div>
+            <div class="card-footer">
+                <div id="listingBadge" class="alert alert-info py-2 px-3 d-none mb-2"></div>
+                <div class="input-group">
+                    <input type="text" id="chatInput" class="form-control" placeholder="Nhập tin nhắn..." />
+                    <button type="button" class="btn btn-primary" id="sendBtn">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const token = localStorage.getItem('tin_tot_token');
+            const initialReceiverKey = '@(Model.ReceiverKey ?? string.Empty)';
+            const initialListingKey = '@(Model.ListingKey ?? string.Empty)';
+
+            const conversationList = document.getElementById('conversationList');
+            const chatBody = document.getElementById('chatBody');
+            const chatHeader = document.getElementById('chatHeader');
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const listingBadge = document.getElementById('listingBadge');
+
+            let selectedReceiverKey = initialReceiverKey || null;
+            let selectedReceiverName = '';
+            let selectedListingKey = initialListingKey || null;
+
+            const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
+
+            const timeFmt = (v) => {
+                if (!v) return '';
+                const d = new Date(v);
+                if (Number.isNaN(d.getTime())) return '';
+                return d.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+            };
+
+            const renderMessage = (m, append = true) => {
+                const profile = JSON.parse(localStorage.getItem('tin_tot_user') || '{}');
+                const myName = profile.fullName || profile.loginName || '';
+                const isSelf = m.senderName === myName || m.senderId?.toString() === profile.id?.toString();
+                const wrap = document.createElement('div');
+                wrap.className = `mb-2 d-flex ${isSelf ? 'justify-content-end' : 'justify-content-start'}`;
+                const bubble = document.createElement('div');
+                bubble.className = `p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-white border'}`;
+                bubble.style.maxWidth = '75%';
+                bubble.innerHTML = `<div>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
+                if (m.listingKey && m.listingTitle) {
+                    const item = document.createElement('a');
+                    item.className = 'd-block mt-2 text-decoration-none';
+                    item.href = `/Bai-dang/${slugify(m.listingTitle)}/${m.listingKey}`;
+                    item.innerHTML = `<div class='border rounded p-2 bg-light text-dark'><strong>${m.listingTitle}</strong></div>`;
+                    bubble.appendChild(item);
+                }
+                wrap.appendChild(bubble);
+                if (append) chatBody.appendChild(wrap); else chatBody.prepend(wrap);
+            };
+
+            const slugify = (s) => (s || 'tin-dang')
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+
+            const loadConversations = async () => {
+                const resp = await fetch('/api/messages/conversations', { headers: authHeaders() });
+                if (!resp.ok) return;
+                const json = await resp.json();
+                if (!json.success) return;
+
+                conversationList.innerHTML = '';
+                json.data.forEach(x => {
+                    const el = document.createElement('button');
+                    el.type = 'button';
+                    el.className = 'list-group-item list-group-item-action';
+                    el.dataset.receiverKey = x.receiverKey;
+                    el.dataset.receiverName = x.displayName;
+                    el.innerHTML = `<div class='fw-semibold'>${x.displayName}</div><small class='text-muted'>${x.lastMessage}</small>`;
+                    el.onclick = () => selectConversation(x.receiverKey, x.displayName);
+                    conversationList.appendChild(el);
+                });
+
+                if (selectedReceiverKey) {
+                    const target = conversationList.querySelector(`[data-receiver-key='${selectedReceiverKey}']`);
+                    if (target) {
+                        target.click();
+                    }
+                }
+            };
+
+            const loadHistory = async () => {
+                if (!selectedReceiverKey) return;
+                const resp = await fetch(`/api/messages/history/${encodeURIComponent(selectedReceiverKey)}`, { headers: authHeaders() });
+                if (!resp.ok) return;
+                const json = await resp.json();
+                if (!json.success) return;
+
+                chatBody.innerHTML = '';
+                json.data.forEach(m => renderMessage(m));
+                chatBody.scrollTop = chatBody.scrollHeight;
+            };
+
+            const selectConversation = async (receiverKey, receiverName) => {
+                selectedReceiverKey = receiverKey;
+                selectedReceiverName = receiverName;
+                chatHeader.textContent = `Đang chat với ${receiverName}`;
+                await loadHistory();
+
+                if (selectedListingKey) {
+                    listingBadge.classList.remove('d-none');
+                    listingBadge.textContent = 'Tin nhắn sẽ đính kèm thông tin bài đăng.';
+                } else {
+                    listingBadge.classList.add('d-none');
+                }
+            };
+
+            sendBtn.addEventListener('click', async () => {
+                if (!selectedReceiverKey) return;
+                const content = (chatInput.value || '').trim();
+                const resp = await fetch('/api/messages/send', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ receiverKey: selectedReceiverKey, listingKey: selectedListingKey, content })
+                });
+                const json = await resp.json();
+                if (!resp.ok || !json.success) return alert(json.message || 'Gửi tin nhắn thất bại.');
+
+                chatInput.value = '';
+                selectedListingKey = null;
+                listingBadge.classList.add('d-none');
+                await loadHistory();
+                await loadConversations();
+            });
+
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/hubs/messages')
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on('ReceiveMessage', async () => {
+                await loadConversations();
+                if (selectedReceiverKey) await loadHistory();
+            });
+
+            connection.start().catch(() => {});
+            loadConversations();
+        })();
+    </script>
+}

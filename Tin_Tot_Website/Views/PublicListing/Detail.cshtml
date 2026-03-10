@@ -110,9 +110,14 @@
 
                 @if (!string.IsNullOrWhiteSpace(Model.SellerKey))
                 {
-                    <button id="followBtn" class="btn btn-outline-info" data-seller-key="@Model.SellerKey" type="button">
-                        <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
-                    </button>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Messages", new { receiverKey = Model.SellerKey, listingKey = Model.ListingKey })">
+                            <i class="bi bi-chat-dots me-1"></i> Nhắn tin
+                        </a>
+                        <button id="followBtn" class="btn btn-outline-info" data-seller-key="@Model.SellerKey" type="button">
+                            <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
+                        </button>
+                    </div>
                 }
             </div>
         </div>
