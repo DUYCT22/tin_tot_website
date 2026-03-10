@@ -2,7 +2,17 @@
 @{
     ViewData["Title"] = "Tin nhắn";
 }
+<style>
+    #chatBody {
+        overflow-x: hidden !important;
+    }
 
+    .message-bubble-content {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+</style>
 <div class="row g-3">
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm h-100">
@@ -61,7 +71,7 @@
                 const bubble = document.createElement('div');
                 bubble.className = `p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-white border'}`;
                 bubble.style.maxWidth = '75%';
-                bubble.innerHTML = `<div>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
+                bubble.innerHTML = `<div class='message-bubble-content'>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
                 if (m.listingKey && m.listingTitle) {
                     const item = document.createElement('a');
                     item.className = 'd-block mt-2 text-decoration-none';

@@ -33,6 +33,7 @@ namespace Tin_Tot_Website.Controllers
             var data = await _messageService.GetConversationsAsync(userId.Value);
             var payload = data.Select(x => new
             {
+                receiverId = x.UserId,
                 receiverKey = _entityKeyService.ProtectId("seller", x.UserId),
                 displayName = x.DisplayName,
                 avatar = x.Avatar,
