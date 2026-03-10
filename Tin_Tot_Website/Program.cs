@@ -4,19 +4,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Tin_Tot_Website.Services;
+using Tin_Tot_Website.Services.Messages;
+using Tin_Tot_Website.Services.Notifications;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
 using TinTot.Application.Interfaces.Home;
 using TinTot.Application.Interfaces.Images;
 using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Interfaces.Messages;
+using TinTot.Application.Interfaces.Notifications;
 using TinTot.Application.Interfaces.Users;
 using TinTot.Application.Services;  
 using TinTot.Application.Services.Home;
 using TinTot.Application.Services.Listings;
+using TinTot.Application.Services.Messages;
+using TinTot.Application.Services.Notifications;
 using TinTot.Application.Services.Users;
 using TinTot.Infrastructure.Data;
 using TinTot.Infrastructure.Repositories;
 using TinTot.Infrastructure.Repositories.Home;
+using TinTot.Infrastructure.Repositories.Messages;
 using TinTot.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +54,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAvatarStorageService, CloudinaryAvatarStorageService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -56,6 +63,9 @@ builder.Services.AddScoped<IBannerService, BannerService>();
 builder.Services.AddScoped<IListingService, ListingService>();
 builder.Services.AddScoped<IListingImageService, ListingImageService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+
 builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
 builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -64,6 +74,10 @@ builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
 builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRealtimePublisher>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IMessageRealtimePublisher, SignalRMessageRealtimePublisher>();
 builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
 builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -128,7 +142,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.MapHub<Tin_Tot_Website.Hubs.NotificationHub>("/hubs/notifications");
+app.MapHub<Tin_Tot_Website.Hubs.MessageHub>("/hubs/messages");
 // Friendly URL for page
 app.MapControllerRoute(
     name: "FriendlyHome",

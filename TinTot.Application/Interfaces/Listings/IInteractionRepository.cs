@@ -5,6 +5,8 @@ namespace TinTot.Application.Interfaces.Listings
     {
         Task<bool> ListingExistsAsync(int listingId);
         Task<int?> GetSellerIdByListingIdAsync(int listingId);
+        Task<string?> GetUserDisplayNameAsync(int userId);
+        Task<string?> GetListingTitleAsync(int listingId);
         Task<bool> SellerExistsAsync(int sellerId);
 
         Task<bool> IsFavoritedAsync(int userId, int listingId);

@@ -110,9 +110,14 @@
 
                 @if (!string.IsNullOrWhiteSpace(Model.SellerKey))
                 {
-                    <button id="followBtn" class="btn btn-outline-info" data-seller-key="@Model.SellerKey" type="button">
-                        <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
-                    </button>
+                    <div class="d-flex gap-2">
+                        <a id="messageSellerBtn" class="btn btn-outline-secondary" href="@Url.Action("Index", "Messages", new { receiverKey = Model.SellerKey, listingKey = Model.ListingKey })">
+                            <i class="bi bi-chat-dots me-1"></i> Nhắn tin
+                        </a>
+                        <button id="followBtn" class="btn btn-outline-info" data-seller-key="@Model.SellerKey" type="button">
+                            <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
+                        </button>
+                    </div>
                 }
             </div>
         </div>
@@ -167,7 +172,7 @@
             const favoriteBtn = document.getElementById('favoriteBtn');
             const followBtn = document.getElementById('followBtn');
             const shareBtn = document.getElementById('shareBtn');
-
+            const messageSellerBtn = document.getElementById('messageSellerBtn');
             const carouselImages = document.getElementById('carouselImages');
             const modalElement = document.getElementById('imageModal');
             const modal = modalElement ? new bootstrap.Modal(modalElement) : null;
@@ -250,7 +255,14 @@
                 setFollowState(!isActive);
                 showToast(payload.message);
             });
+            messageSellerBtn?.addEventListener('click', (event) => {
+                if (token) {
+                    return;
+                }
 
+                event.preventDefault();
+                showToast('Bạn cần đăng nhập để nhắn tin người bán.');
+            });
             shareBtn?.addEventListener('click', async () => {
                 try {
                     await navigator.clipboard.writeText(window.location.href);

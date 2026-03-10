@@ -28,6 +28,46 @@
             border: 1px solid #f6e8a6;
             border-radius: 1rem;
         }
+
+        .message-popup {
+            width: min(92vw, 680px);
+            max-height: 75vh;
+        }
+
+        .message-conversations {
+            width: 240px;
+            max-height: 58vh;
+            overflow-y: auto;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .message-chat {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-chat-body {
+            height: 44vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #f8f9fa;
+        }
+
+        .message-bubble-content {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        @@media (max-width: 991.98px) {
+            .message-popup {
+                width: min(96vw, 680px);
+            }
+
+            .message-conversations {
+                width: 190px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -49,7 +89,46 @@
                         <a class="btn btn-outline-primary" href="/Dang-nhap">Đăng nhập</a>
                         <a class="btn btn-primary" href="/Dang-ky">Đăng ký</a>
                     </div>
-
+                    <div id="messageActions" class="dropdown d-none me-2">
+                        <button class="btn btn-light border position-relative" id="messageBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Tin nhắn" type="button">
+                            <i class="bi bi-chat-dots"></i>
+                            <span id="messageBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-0 message-popup">
+                            <div class="px-3 py-2 border-bottom">
+                                <strong>Tin nhắn</strong>
+                            </div>
+                            <div class="d-flex">
+                                <div id="popupConversationList" class="list-group list-group-flush message-conversations"></div>
+                                <div class="message-chat d-flex flex-column">
+                                    <div id="popupChatHeader" class="px-3 py-2 border-bottom text-muted">Chọn cuộc trò chuyện</div>
+                                    <div id="popupChatBody" class="p-3 message-chat-body"></div>
+                                    <div class="px-3 pt-1 pb-0 border-top">
+                                        <small id="typingIndicator" class="text-muted d-none">Đang nhập tin nhắn...</small>
+                                    </div>
+                                    <div class="p-2">
+                                        <div class="input-group">
+                                            <input id="popupChatInput" type="text" class="form-control" placeholder="Nhập tin nhắn..." />
+                                            <button id="popupSendBtn" type="button" class="btn btn-primary">Gửi</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="notificationActions" class="dropdown d-none me-2">
+                        <button class="btn btn-light border position-relative" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo" type="button">
+                            <i class="bi bi-bell"></i>
+                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-0" style="width: 360px; max-width: 90vw;">
+                            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                                <strong>Thông báo</strong>
+                                <button id="markAllReadBtn" class="btn btn-link btn-sm text-decoration-none" type="button">Đánh dấu đã đọc</button>
+                            </div>
+                            <div id="notificationListContainer" style="max-height: 360px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
                     <div id="userActions" class="dropdown d-none">
                         <button class="btn btn-light border dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
                             <img id="userAvatar" class="user-avatar" src="/favicon.ico" alt="Avatar" />
@@ -58,6 +137,7 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                             <li><span class="dropdown-item-text text-muted small">Đã đăng nhập</span></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Profile"><i class="bi bi-person-circle me-2"></i>Trang cá nhân</a></li>
+                            <li><a class="dropdown-item" asp-controller="Messages" asp-action="Index"><i class="bi bi-chat-dots me-2"></i>Tin nhắn</a></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Post"><i class="bi bi-pencil-square me-2"></i>Đăng tin</a></li>
                             <li><a class="dropdown-item" asp-controller="MemberListing" asp-action="Saved"><i class="bi bi-heart me-2"></i>Tin đã lưu</a></li>
                             <li><hr class="dropdown-divider" /></li>
@@ -81,13 +161,28 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        (() => {
+        (async () => {
             const tokenKey = 'tin_tot_token';
             const profileKey = 'tin_tot_user';
             const guestActions = document.getElementById('guestActions');
             const userActions = document.getElementById('userActions');
+            const notificationActions = document.getElementById('notificationActions');
+            const messageActions = document.getElementById('messageActions');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const notificationListContainer = document.getElementById('notificationListContainer');
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            const messageBtn = document.getElementById('messageBtn');
+            const messageBadge = document.getElementById('messageBadge');
+            const popupConversationList = document.getElementById('popupConversationList');
+            const popupChatHeader = document.getElementById('popupChatHeader');
+            const popupChatBody = document.getElementById('popupChatBody');
+            const popupChatInput = document.getElementById('popupChatInput');
+            const popupSendBtn = document.getElementById('popupSendBtn');
+            const typingIndicator = document.getElementById('typingIndicator');
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
             const logoutBtn = document.getElementById('logoutBtn');
@@ -119,6 +214,245 @@
 
                     guestActions.classList.add('d-none');
                     userActions.classList.remove('d-none');
+                    notificationActions.classList.remove('d-none');
+                    messageActions.classList.remove('d-none');
+
+                    const myProfile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+                    const myUserId = Number(myProfile.id || 0);
+                    let selectedReceiverKey = null;
+                    let selectedReceiverId = null;
+                    let unreadMessageCount = 0;
+                    const unreadConversationSet = new Set();
+                    let typingTimeout = null;
+
+                    const setMessageBadge = () => {
+                        messageBadge.textContent = unreadMessageCount;
+                        messageBadge.classList.toggle('d-none', unreadMessageCount <= 0);
+                    };
+
+                    const playTingTing = () => {
+                        const Ctx = window.AudioContext || window.webkitAudioContext;
+                        if (!Ctx) return;
+
+                        const ctx = new Ctx();
+                        const playOne = (freq, offsetMs) => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = 'sine';
+                            osc.frequency.value = freq;
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+
+                            const start = ctx.currentTime + (offsetMs / 1000);
+                            gain.gain.setValueAtTime(0.0001, start);
+                            gain.gain.exponentialRampToValueAtTime(0.18, start + 0.02);
+                            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+                            osc.start(start);
+                            osc.stop(start + 0.24);
+                        };
+
+                        playOne(880, 0);
+                        playOne(1175, 170);
+                        setTimeout(() => ctx.close(), 500);
+                    };
+
+                    const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
+
+                    const timeFmt = (v) => {
+                        if (!v) return '';
+                        const d = new Date(v);
+                        if (Number.isNaN(d.getTime())) return '';
+                        return d.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+                    };
+
+                    const loadMessageConversations = async () => {
+                        const resp = await fetch('/api/messages/conversations', { headers: authHeaders() });
+                        if (!resp.ok) return;
+                        const json = await resp.json();
+                        if (!json.success) return;
+
+                        popupConversationList.innerHTML = '';
+                        json.data.forEach(x => {
+                            const el = document.createElement('button');
+                            el.type = 'button';
+                            el.className = 'list-group-item list-group-item-action';
+                            if (unreadConversationSet.has(x.receiverKey)) {
+                                el.classList.add('fw-semibold');
+                            }
+                            el.dataset.receiverKey = x.receiverKey;
+                            el.dataset.receiverId = x.receiverId;
+                            el.dataset.receiverName = x.displayName;
+                            el.innerHTML = `<div class='text-truncate'>${x.displayName}</div><small class='text-muted text-truncate d-block'>${x.lastMessage || ''}</small>`;
+                            el.onclick = () => selectConversation(x.receiverKey, x.displayName, Number(x.receiverId));
+                            popupConversationList.appendChild(el);
+                        });
+                    };
+
+                    const renderChatMessage = (m) => {
+                        const isSelf = Number(m.senderId) === myUserId;
+                        const wrap = document.createElement('div');
+                        wrap.className = `mb-2 d-flex ${isSelf ? 'justify-content-end' : 'justify-content-start'}`;
+
+                        const bubble = document.createElement('div');
+                        bubble.className = `p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-white border'}`;
+                        bubble.style.maxWidth = '78%';
+                        bubble.innerHTML = `<div class='message-bubble-content'>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
+
+                        wrap.appendChild(bubble);
+                        popupChatBody.appendChild(wrap);
+                    };
+
+                    const loadMessageHistory = async () => {
+                        if (!selectedReceiverKey) return;
+                        const resp = await fetch(`/api/messages/history/${encodeURIComponent(selectedReceiverKey)}`, { headers: authHeaders() });
+                        if (!resp.ok) return;
+                        const json = await resp.json();
+                        if (!json.success) return;
+
+                        popupChatBody.innerHTML = '';
+                        json.data.forEach(renderChatMessage);
+                        popupChatBody.scrollTop = popupChatBody.scrollHeight;
+                    };
+
+                    const selectConversation = async (receiverKey, receiverName, receiverId) => {
+                        selectedReceiverKey = receiverKey;
+                        selectedReceiverId = receiverId;
+                        popupChatHeader.textContent = `Đang chat với ${receiverName}`;
+                        typingIndicator.classList.add('d-none');
+
+                        if (unreadConversationSet.delete(receiverKey)) {
+                            unreadMessageCount = Math.max(0, unreadMessageCount - 1);
+                            setMessageBadge();
+                        }
+
+                        await loadMessageConversations();
+                        await loadMessageHistory();
+                    };
+
+                    const sendPopupMessage = async () => {
+                        if (!selectedReceiverKey) return;
+                        const content = (popupChatInput.value || '').trim();
+                        if (!content) return;
+
+                        const resp = await fetch('/api/messages/send', {
+                            method: 'POST',
+                            headers: authHeaders(),
+                            body: JSON.stringify({ receiverKey: selectedReceiverKey, content })
+                        });
+                        const json = await resp.json();
+                        if (!resp.ok || !json.success) {
+                            alert(json.message || 'Gửi tin nhắn thất bại.');
+                            return;
+                        }
+
+                        popupChatInput.value = '';
+                        await loadMessageConversations();
+                        await loadMessageHistory();
+                    };
+
+                    popupSendBtn?.addEventListener('click', sendPopupMessage);
+                    popupChatInput?.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            sendPopupMessage();
+                        }
+                    });
+
+                    const setUnreadBadge = (count) => {
+                        notificationBadge.textContent = count;
+                        notificationBadge.classList.toggle('d-none', !count || count <= 0);
+                    };
+
+                    const refreshUnreadCount = async () => {
+                        const resp = await fetch('/api/notifications/unread-count', { headers: { Authorization: `Bearer ${token}` } });
+                        if (!resp.ok) return;
+                        const data = await resp.json();
+                        setUnreadBadge(data.unreadCount || 0);
+                    };
+
+                    const loadNotificationList = async () => {
+                        const resp = await fetch('/api/notifications/list', { headers: { Authorization: `Bearer ${token}` } });
+                        if (!resp.ok) return;
+                        notificationListContainer.innerHTML = await resp.text();
+                    };
+
+                    notificationBtn?.addEventListener('click', async () => {
+                        await loadNotificationList();
+                    });
+
+                    markAllReadBtn?.addEventListener('click', async () => {
+                        const resp = await fetch('/api/notifications/mark-all-read', {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (!resp.ok) return;
+                        await loadNotificationList();
+                        setUnreadBadge(0);
+                    });
+
+                    await refreshUnreadCount();
+
+                    await loadMessageConversations();
+
+                    messageBtn?.addEventListener('click', async () => {
+                        await loadMessageConversations();
+                        if (selectedReceiverKey) await loadMessageHistory();
+                    });
+
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl('/hubs/notifications')
+                        .withAutomaticReconnect()
+                        .build();
+
+                    connection.on('ReceiveNotification', (payload) => {
+                        const count = payload?.unreadCount ?? 0;
+                        setUnreadBadge(count);
+                    });
+
+                    const messageConnection = new signalR.HubConnectionBuilder()
+                        .withUrl('/hubs/messages')
+                        .withAutomaticReconnect()
+                        .build();
+
+                    messageConnection.on('ReceiveMessage', async (payload) => {
+                        await loadMessageConversations();
+
+                        const senderId = Number(payload?.senderId || 0);
+                        const receiverKeyOfSender = popupConversationList
+                            .querySelector(`[data-receiver-id='${senderId}']`)
+                            ?.dataset?.receiverKey;
+
+                        if (selectedReceiverKey && (senderId === selectedReceiverId || Number(payload?.receiverId || 0) === selectedReceiverId)) {
+                            await loadMessageHistory();
+                        }
+
+                        if (senderId && senderId !== myUserId && receiverKeyOfSender && receiverKeyOfSender !== selectedReceiverKey) {
+                            if (!unreadConversationSet.has(receiverKeyOfSender)) {
+                                unreadConversationSet.add(receiverKeyOfSender);
+                                unreadMessageCount += 1;
+                                setMessageBadge();
+                            }
+                            playTingTing();
+                        }
+                    });
+
+                    messageConnection.on('TypingStatusChanged', (payload) => {
+                        const senderId = Number(payload?.senderId || 0);
+                        const isTyping = !!payload?.isTyping;
+                        const show = !!selectedReceiverId && senderId === selectedReceiverId && isTyping;
+                        typingIndicator.classList.toggle('d-none', !show);
+                    });
+
+                    popupChatInput?.addEventListener('input', () => {
+                        if (!selectedReceiverId) return;
+                        messageConnection.invoke('NotifyTyping', selectedReceiverId, true).catch(() => {});
+                        clearTimeout(typingTimeout);
+                        typingTimeout = setTimeout(() => {
+                            messageConnection.invoke('NotifyTyping', selectedReceiverId, false).catch(() => {});
+                        }, 1400);
+                    });
+
+                    messageConnection.start().catch(() => {});
                 } catch {
                     localStorage.removeItem(profileKey);
                     localStorage.removeItem(tokenKey);

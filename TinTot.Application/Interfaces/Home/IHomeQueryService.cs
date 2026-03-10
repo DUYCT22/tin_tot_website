@@ -10,5 +10,6 @@ namespace TinTot.Application.Interfaces.Home
     public interface IHomeQueryService
     {
         Task<HomePageDto> GetHomePageDataAsync(int? currentUserId, int take = 6);
+        Task<AllListingsPageDto> GetAllListingsPageDataAsync(int? currentUserId, int? categoryId, string? sort, int page = 1, int pageSize = 12);
     }
 }

@@ -4,16 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TinTot.Application.Interfaces.Listings;
+using TinTot.Application.Interfaces.Notifications;
 
 namespace TinTot.Application.Services.Listings
 {
     public class InteractionService : IInteractionService
     {
         private readonly IInteractionRepository _repository;
+        private readonly INotificationService _notificationService;
 
-        public InteractionService(IInteractionRepository repository)
+        public InteractionService(IInteractionRepository repository, INotificationService notificationService)
         {
             _repository = repository;
+            _notificationService = notificationService;
         }
 
         public Task<bool> IsFavoritedAsync(int userId, int listingId) => _repository.IsFavoritedAsync(userId, listingId);
@@ -30,6 +33,17 @@ namespace TinTot.Application.Services.Listings
 
             await _repository.AddFavoriteAsync(userId, listingId);
             await _repository.SaveChangesAsync();
+            var sellerId = await _repository.GetSellerIdByListingIdAsync(listingId);
+            if (sellerId.HasValue && sellerId.Value != userId)
+            {
+                var actor = await _repository.GetUserDisplayNameAsync(userId) ?? "Một người dùng";
+                var listingTitle = await _repository.GetListingTitleAsync(listingId) ?? "bài đăng của bạn";
+                await _notificationService.CreateAndPublishAsync(
+                    sellerId.Value,
+                    userId,
+                    listingId,
+                    $"{actor} đã lưu tin \"{listingTitle}\" của bạn vào yêu thích.");
+            }
             return "Đã thêm vào yêu thích.";
         }
 
@@ -59,6 +73,12 @@ namespace TinTot.Application.Services.Listings
 
             await _repository.AddFollowAsync(userId, sellerId);
             await _repository.SaveChangesAsync();
+            var actor = await _repository.GetUserDisplayNameAsync(userId) ?? "Một người dùng";
+            await _notificationService.CreateAndPublishAsync(
+                sellerId,
+                userId,
+                null,
+                $"{actor} vừa theo dõi bạn.");
             return "Theo dõi người bán thành công.";
         }
 

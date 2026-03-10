@@ -1,0 +1,18 @@
+﻿@model List<Tin_Tot_Website.Models.Notifications.NotificationItemViewModel>
+
+<ul class="list-group list-group-flush">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <li class="list-group-item @(item.IsRead ? string.Empty : "list-group-item-warning")">
+                <div class="fw-bold">@(item.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "--/--/---- --:--")</div>
+                <div>@item.Message</div>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="list-group-item text-muted">Không có thông báo nào.</li>
+    }
+</ul>
