@@ -17,6 +17,32 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Tin_Tot_Website.styles.css" asp-append-version="true" />
     <style>
+        .search-box {
+            border: 2px solid #ccc;
+            border-radius: 50px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+            .search-box select,
+            .search-box input {
+                border: none !important; /* bỏ viền mặc định */
+                box-shadow: none !important;
+            }
+
+            .search-box .input-group-text {
+                background-color: transparent;
+                font-weight: bold;
+                color: #999;
+            }
+
+        #guestActions a {
+            transition: color 0.2s ease;
+        }
+
+            #guestActions a:hover {
+                color: black !important;
+            }
         .navbar {
             transition: all 0.3s ease;
         }
@@ -114,34 +140,51 @@
 
                
                     <div class="collapse navbar-collapse" id="mainNav">
-                    <form class="d-flex flex-grow-1 me-lg-3" method="get" asp-controller="Home" asp-action="AllListings">
-                            <select class="form-select" name="categoryId" style="min-width: 190px; max-width: 260px;">
+                    <form class="search-form d-flex flex-grow-1 me-lg-3" method="get" asp-controller="Home" asp-action="AllListings">
+                        <div class="input-group search-box" style="max-width: 600px;">
+                            <select class="form-select border-0" name="categoryId" style="max-width: 220px;">
                                 <option value="">Tất cả danh mục</option>
-                                @foreach (var category in navbarCategories)
-                                {
-                                    var parentName = category.ParentId.HasValue && navbarCategoryById.TryGetValue(category.ParentId.Value, out var parentCategory)
-                                    ? parentCategory.Name
-                                    : null;
-                                    var optionLabel = string.IsNullOrWhiteSpace(parentName)
-                                    ? category.Name
-                                    : $"{parentName} > {category.Name}";
 
-                                    <option value="@category.Id" selected="@(navbarSelectedCategoryIdRaw == category.Id.ToString() ? "selected" : null)">@optionLabel</option>
+                                @foreach (var parent in navbarCategories.Where(c => !c.ParentId.HasValue))
+                                {
+                                    <!-- Danh mục cha -->
+                                    <option value="@parent.Id"
+                                            selected="@(navbarSelectedCategoryIdRaw == parent.Id.ToString() ? "selected" : null)">
+                                        @parent.Name
+                                    </option>
+
+                                    <!-- Danh mục con -->
+                                    @foreach (var child in navbarCategories.Where(c => c.ParentId == parent.Id))
+                                    {
+                                        <option value="@child.Id"
+                                                selected="@(navbarSelectedCategoryIdRaw == child.Id.ToString() ? "selected" : null)">
+                                            &nbsp;&nbsp;— @child.Name
+                                        </option>
+                                    }
                                 }
                             </select>
 
-                            <div class="input-group" style="min-width: 260px; max-width: 520px;">
-                                <input class="form-control" type="search" name="keyword" value="@navbarSelectedKeyword" placeholder="🔎 Tìm kiếm bài đăng..." autocomplete="off" />
-                                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+
+                            <span class="input-group-text border-0 bg-white">|</span>
+
+                            <div class="position-relative flex-grow-1">
+                                <input class="form-control border-0 pe-5" type="search" name="keyword" value="@navbarSelectedKeyword" placeholder="Tìm kiếm bài đăng..." autocomplete="off" />
+                                <button type="submit" class="btn btn-link position-absolute end-0 top-0 mt-1 me-2 text-secondary">
+                                    <i class="bi bi-search"></i>
+                                </button>
                             </div>
-                        </form>
+                        </div>
+                    </form>
+
                     @* <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Chính sách</a></li>
                     </ul> *@
-                    <div id="guestActions" class="d-flex gap-2 ms-auto">
-                        <a class="btn btn-outline-primary" href="/Dang-nhap">Đăng nhập</a>
-                        <a class="btn btn-primary" href="/Dang-ky">Đăng ký</a>
+                    <div id="guestActions" class="d-flex gap-2 ms-auto align-items-center">
+                        <a class="nav-link text-warning fw-bold" href="/Dang-nhap">Đăng nhập</a>
+                        <span>|</span>
+                        <a class="nav-link text-warning fw-bold" href="/Dang-ky">Đăng ký</a>
                     </div>
+
                     <div id="messageActions" class="dropdown d-none me-2">
                         <button class="btn btn-light border position-relative" id="messageBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Tin nhắn" type="button">
                             <i class="bi bi-chat-dots"></i>
@@ -226,9 +269,11 @@
                 <div class="col-6 col-md-3">
                     <h6 class="text-uppercase fw-bold">Hỗ trợ</h6>
                     <ul class="list-unstyled small">
-                        <li><a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Điều khoản sử dụng</a></li>
-                        <li><a  class="text-muted text-decoration-none">Về chúng tôi</a></li>
-                        <li><a  class="text-muted text-decoration-none">Liên hệ</a></li>
+                        <li>
+                            <a asp-controller="Home" asp-action="TermsofUse" class="text-muted text-decoration-none">Điều khoản sử dụng</a>
+                        </li>
+                        <li><a asp-controller="Home" asp-action="About" class="text-muted text-decoration-none">Về chúng tôi</a></li>
+                        <li><a asp-controller="Contact" asp-action="Index" class="text-muted text-decoration-none">Liên hệ</a></li>
                     </ul>
                 </div>
 

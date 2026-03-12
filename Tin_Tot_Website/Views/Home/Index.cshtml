@@ -61,7 +61,7 @@
 <section>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h4 fw-bold mb-0">Bài đăng mới nhất</h2>
-        <a class="btn btn-outline-primary btn-sm" href="@Url.Action("AllListings", "Home")">Tất cả bài đăng</a>
+        <a class="text-primary small text-decoration-none mt-2 mt-md-0" href="@Url.Action("AllListings", "Home")">Xem tất cả →</a>
     </div>
 
     @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", new Tin_Tot_Website.Models.ListingCardSectionViewModel

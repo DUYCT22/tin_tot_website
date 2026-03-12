@@ -37,7 +37,7 @@ namespace Tin_Tot_Website.Controllers
         public async Task<IActionResult> AllListingsLoadMore([FromQuery] int page = 1, [FromQuery] int pageSize = 12, [FromQuery] int? categoryId = null, [FromQuery] string? keyword = null, [FromQuery] string? sort = null)
         {
             var currentUserId = GetCurrentUserId();
-            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, keyword, page, pageSize);
+            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, keyword, sort, page, pageSize);
 
             return PartialView("~/Views/Shared/Components/_ListingCardItems.cshtml", new ListingCardSectionViewModel
             {
@@ -46,7 +46,14 @@ namespace Tin_Tot_Website.Controllers
                 EmptyMessage = string.Empty
             });
         }
-        public IActionResult Privacy()
+        [HttpGet("Dieu-khoan-su-dung")]
+        public IActionResult TermsofUse()
+        {
+            return View();
+        }
+
+        [HttpGet("Ve-chung-toi")]
+        public IActionResult About()
         {
             return View();
         }

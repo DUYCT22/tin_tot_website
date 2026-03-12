@@ -8,13 +8,15 @@ using Tin_Tot_Website.Services.Messages;
 using Tin_Tot_Website.Services.Notifications;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
+using TinTot.Application.Interfaces.Contact;
 using TinTot.Application.Interfaces.Home;
 using TinTot.Application.Interfaces.Images;
 using TinTot.Application.Interfaces.Listings;
 using TinTot.Application.Interfaces.Messages;
 using TinTot.Application.Interfaces.Notifications;
 using TinTot.Application.Interfaces.Users;
-using TinTot.Application.Services;  
+using TinTot.Application.Services;
+using TinTot.Application.Services.Contact;
 using TinTot.Application.Services.Home;
 using TinTot.Application.Services.Listings;
 using TinTot.Application.Services.Messages;
@@ -65,6 +67,7 @@ builder.Services.AddScoped<IListingImageService, ListingImageService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
 builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
@@ -80,6 +83,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageRealtimePublisher, SignalRMessageRealtimePublisher>();
 builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
 builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
+builder.Services.AddScoped<IContactEmailSender, SmtpContactEmailSender>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IEntityKeyService, EntityKeyService>();
 
@@ -149,18 +153,18 @@ app.MapControllerRoute(
     name: "FriendlyHome",
     pattern: "Trang-Chu",
     defaults: new { controller = "Home", action = "Index" });
-app.MapControllerRoute(
-    name: "FriendlyCreateListing",
-    pattern: "Dang-tin",
-    defaults: new { controller = "MemberListing", action = "Post" });
-app.MapControllerRoute(
-    name: "FriendlyFavorite",
-    pattern: "Tin-da-luu",
-    defaults: new { controller = "MemberListing", action = "Saved" });
-app.MapControllerRoute(
-    name: "FriendlyProfile",
-    pattern: "Trang-ca-nhan",
-    defaults: new { controller = "MemberListing", action = "Profile" });
+//app.MapControllerRoute(
+//    name: "FriendlyCreateListing",
+//    pattern: "Dang-tin",
+//    defaults: new { controller = "MemberListing", action = "Post" });
+//app.MapControllerRoute(
+//    name: "FriendlyFavorite",
+//    pattern: "Tin-da-luu",
+//    defaults: new { controller = "MemberListing", action = "Saved" });
+//app.MapControllerRoute(
+//    name: "FriendlyProfile",
+//    pattern: "Trang-ca-nhan",
+//    defaults: new { controller = "MemberListing", action = "Profile" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
