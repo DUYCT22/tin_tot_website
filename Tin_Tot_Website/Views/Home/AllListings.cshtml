@@ -1,8 +1,13 @@
 ﻿@model TinTot.Application.DTOs.AllListingsPageDto
+@using TinTot.Application.Interfaces.Home
+@inject IHomeReadRepository HomeReadRepository
 @{
     ViewData["Title"] = "Tất cả bài đăng";
-
+    var navbarSelectedCategoryIdRaw = Context.Request.Query["categoryId"].ToString();
+    var navbarCategories = await HomeReadRepository.GetAllCategoriesAsync();
+    var navbarCategoryById = navbarCategories.ToDictionary(x => x.Id);
 }
+
 <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <div>
         <h1 class="h4 fw-bold mb-1">Tất cả bài đăng</h1>
@@ -10,11 +15,25 @@
     </div>
 
     <form class="d-flex flex-column flex-sm-row gap-2" method="get" asp-action="AllListings" asp-controller="Home">
-        <select class="form-select" name="categoryId" style="min-width: 220px;">
+        <select class="form-select" name="categoryId" style="max-width: 220px;">
             <option value="">Tất cả danh mục</option>
-            @foreach (var category in Model.Categories)
+
+            @foreach (var parent in navbarCategories.Where(c => !c.ParentId.HasValue))
             {
-                <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id ? "selected" : null)">@category.Name</option>
+                <!-- Danh mục cha -->
+                <option value="@parent.Id"
+                        selected="@(navbarSelectedCategoryIdRaw == parent.Id.ToString() ? "selected" : null)">
+                    @parent.Name
+                </option>
+
+                <!-- Danh mục con -->
+                @foreach (var child in navbarCategories.Where(c => c.ParentId == parent.Id))
+                {
+                    <option value="@child.Id"
+                            selected="@(navbarSelectedCategoryIdRaw == child.Id.ToString() ? "selected" : null)">
+                        &nbsp;&nbsp;— @child.Name
+                    </option>
+                }
             }
         </select>
         <input type="hidden" name="keyword" value="@Model.SelectedKeyword" />

@@ -13,7 +13,9 @@ namespace TinTot.Application.Services.Contact
         public ContactService(IContactEmailSender contactEmailSender, IConfiguration configuration)
         {
             _contactEmailSender = contactEmailSender;
-            _destinationEmail = configuration["Contact:DestinationEmail"] ?? "nguyennhutduy.cv@gmail.com";
+            _destinationEmail = configuration["Contact:DestinationEmail"]
+                ?? configuration["Smtp:FromEmail"]
+                ?? throw new InvalidOperationException("Thiếu cấu hình Contact:DestinationEmail hoặc Smtp:FromEmail.");
         }
 
         public async Task SendContactAsync(ContactRequestDto request)
