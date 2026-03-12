@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using TinTot.Application.Interfaces.Home
+@inject IHomeReadRepository HomeReadRepository
+@{
+    var navbarSelectedCategoryIdRaw = Context.Request.Query["categoryId"].ToString();
+    var navbarSelectedKeyword = Context.Request.Query["keyword"].ToString();
+    var navbarCategories = await HomeReadRepository.GetAllCategoriesAsync();
+    var navbarCategoryById = navbarCategories.ToDictionary(x => x.Id);
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -9,12 +17,34 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Tin_Tot_Website.styles.css" asp-append-version="true" />
     <style>
+        .navbar {
+            transition: all 0.3s ease;
+        }
+
         .navbar-brand-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             object-fit: cover;
         }
+
+        .search-bar input {
+            border-radius: 50px !important;
+            padding-left: 1rem;
+        }
+
+        .search-bar .input-group-text {
+            border-radius: 50px 0 0 50px;
+        }
+
+        .navbar .btn {
+            transition: all 0.3s ease;
+        }
+
+            .navbar .btn:hover {
+                transform: translateY(-2px);
+            }
+
 
         .user-avatar {
             width: 32px;
@@ -81,11 +111,34 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+               
+                    <div class="collapse navbar-collapse" id="mainNav">
+                    <form class="d-flex flex-grow-1 me-lg-3" method="get" asp-controller="Home" asp-action="AllListings">
+                            <select class="form-select" name="categoryId" style="min-width: 190px; max-width: 260px;">
+                                <option value="">Tất cả danh mục</option>
+                                @foreach (var category in navbarCategories)
+                                {
+                                    var parentName = category.ParentId.HasValue && navbarCategoryById.TryGetValue(category.ParentId.Value, out var parentCategory)
+                                    ? parentCategory.Name
+                                    : null;
+                                    var optionLabel = string.IsNullOrWhiteSpace(parentName)
+                                    ? category.Name
+                                    : $"{parentName} > {category.Name}";
+
+                                    <option value="@category.Id" selected="@(navbarSelectedCategoryIdRaw == category.Id.ToString() ? "selected" : null)">@optionLabel</option>
+                                }
+                            </select>
+
+                            <div class="input-group" style="min-width: 260px; max-width: 520px;">
+                                <input class="form-control" type="search" name="keyword" value="@navbarSelectedKeyword" placeholder="🔎 Tìm kiếm bài đăng..." autocomplete="off" />
+                                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                            </div>
+                        </form>
+                    @* <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Chính sách</a></li>
-                    </ul>
-                    <div id="guestActions" class="d-flex gap-2">
+                    </ul> *@
+                    <div id="guestActions" class="d-flex gap-2 ms-auto">
                         <a class="btn btn-outline-primary" href="/Dang-nhap">Đăng nhập</a>
                         <a class="btn btn-primary" href="/Dang-ky">Đăng ký</a>
                     </div>
@@ -152,12 +205,47 @@
         @RenderBody()
     </main>
 
-    <footer class="border-top py-3 mt-4 bg-light">
-        <div class="container d-flex justify-content-between flex-wrap gap-2 text-muted small">
-            <span>© 2026 Tin Tốt</span>
-            <span>Nền tảng mua bán đơn giản, an toàn.</span>
+    <footer class="bg-light border-top pt-4 pb-2 mt-5">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-md-4">
+                    <img src="~/images/Logo.jpg" alt="Logo" class="img-fluid mb-2 rounded-circle" style="max-height: 100px;" />
+                    <p class="small text-muted">
+                        Nền tảng mua bán đáng tin cậy. Chúng tôi kết nối người mua và người bán một cách nhanh chóng, an toàn và thuận tiện.
+                    </p>
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <h6 class="text-uppercase fw-bold">Trang</h6>
+                    <ul class="list-unstyled small">
+                        <li><a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none">Trang chủ</a></li>
+                        <li><a asp-controller="Home" asp-action="AllListings" class="text-muted text-decoration-none">Tin đăng</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <h6 class="text-uppercase fw-bold">Hỗ trợ</h6>
+                    <ul class="list-unstyled small">
+                        <li><a asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Điều khoản sử dụng</a></li>
+                        <li><a  class="text-muted text-decoration-none">Về chúng tôi</a></li>
+                        <li><a  class="text-muted text-decoration-none">Liên hệ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <h6 class="text-uppercase fw-bold">Theo dõi chúng tôi</h6>
+                    <a href="https://fb.com/NhutDuyOt" class="text-muted me-2"><i class="bi bi-facebook fs-5"></i></a>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-3" />
+
+            <div class="text-center small text-muted">
+                &copy; 2026 Tin Tốt. Mọi bản quyền thuộc Nguyễn Nhựt Duy.
+            </div>
         </div>
     </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

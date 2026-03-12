@@ -26,18 +26,18 @@ namespace Tin_Tot_Website.Controllers
         }
 
         [HttpGet("Tat-ca-bai-dang")]
-        public async Task<IActionResult> AllListings([FromQuery] int? categoryId, [FromQuery] string? sort)
+        public async Task<IActionResult> AllListings([FromQuery] int? categoryId, [FromQuery] string? keyword, [FromQuery] string? sort)
         {
             var currentUserId = GetCurrentUserId();
-            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, page: 1, pageSize: 12);
+            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, keyword, sort, page: 1, pageSize: 12);
             return View(model);
         }
 
         [HttpGet("Tat-ca-bai-dang/tai-them")]
-        public async Task<IActionResult> AllListingsLoadMore([FromQuery] int page = 1, [FromQuery] int pageSize = 12, [FromQuery] int? categoryId = null, [FromQuery] string? sort = null)
+        public async Task<IActionResult> AllListingsLoadMore([FromQuery] int page = 1, [FromQuery] int pageSize = 12, [FromQuery] int? categoryId = null, [FromQuery] string? keyword = null, [FromQuery] string? sort = null)
         {
             var currentUserId = GetCurrentUserId();
-            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, page, pageSize);
+            var model = await _homeQueryService.GetAllListingsPageDataAsync(currentUserId, categoryId, sort, keyword, page, pageSize);
 
             return PartialView("~/Views/Shared/Components/_ListingCardItems.cshtml", new ListingCardSectionViewModel
             {

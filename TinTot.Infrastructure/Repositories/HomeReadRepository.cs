@@ -79,7 +79,7 @@ namespace TinTot.Infrastructure.Repositories.Home
                 .ToListAsync();
         }
 
-        public async Task<(List<HomeListingDto> Listings, int TotalCount)> GetFilteredListingsAsync(int? excludedUserId, int? categoryId, string? sort, int page, int pageSize)
+        public async Task<(List<HomeListingDto> Listings, int TotalCount)> GetFilteredListingsAsync(int? excludedUserId, int? categoryId, string? keyword, string? sort, int page, int pageSize)
         {
             var query = BuildPublicListingQuery(excludedUserId);
 
@@ -99,7 +99,11 @@ namespace TinTot.Infrastructure.Repositories.Home
 
                 query = query.Where(x => categoryIds.Contains(x.CategoryId));
             }
-
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var normalizedKeyword = keyword.Trim().ToLower();
+                query = query.Where(x => x.Title != null && x.Title.ToLower().Contains(normalizedKeyword));
+            }
             query = (sort ?? "newest").ToLowerInvariant() switch
             {
                 "oldest" => query.OrderBy(x => x.CreatedAt),
