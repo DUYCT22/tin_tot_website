@@ -1,8 +1,13 @@
 ﻿@model TinTot.Application.DTOs.AllListingsPageDto
+@using TinTot.Application.Interfaces.Home
+@inject IHomeReadRepository HomeReadRepository
 @{
     ViewData["Title"] = "Tất cả bài đăng";
-
+    var navbarSelectedCategoryIdRaw = Context.Request.Query["categoryId"].ToString();
+    var navbarCategories = await HomeReadRepository.GetAllCategoriesAsync();
+    var navbarCategoryById = navbarCategories.ToDictionary(x => x.Id);
 }
+
 <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <div>
         <h1 class="h4 fw-bold mb-1">Tất cả bài đăng</h1>
@@ -10,14 +15,28 @@
     </div>
 
     <form class="d-flex flex-column flex-sm-row gap-2" method="get" asp-action="AllListings" asp-controller="Home">
-        <select class="form-select" name="categoryId" style="min-width: 220px;">
+        <select class="form-select" name="categoryId" style="max-width: 220px;">
             <option value="">Tất cả danh mục</option>
-            @foreach (var category in Model.Categories)
+
+            @foreach (var parent in navbarCategories.Where(c => !c.ParentId.HasValue))
             {
-                <option value="@category.Id" selected="@(Model.SelectedCategoryId == category.Id ? "selected" : null)">@category.Name</option>
+                <!-- Danh mục cha -->
+                <option value="@parent.Id"
+                        selected="@(navbarSelectedCategoryIdRaw == parent.Id.ToString() ? "selected" : null)">
+                    @parent.Name
+                </option>
+
+                <!-- Danh mục con -->
+                @foreach (var child in navbarCategories.Where(c => c.ParentId == parent.Id))
+                {
+                    <option value="@child.Id"
+                            selected="@(navbarSelectedCategoryIdRaw == child.Id.ToString() ? "selected" : null)">
+                        &nbsp;&nbsp;— @child.Name
+                    </option>
+                }
             }
         </select>
-
+        <input type="hidden" name="keyword" value="@Model.SelectedKeyword" />
         <select class="form-select" name="sort" style="min-width: 220px;">
             <option value="newest" selected="@(Model.SelectedSort == "newest" ? "selected" : null)">Thời gian đăng: Mới</option>
             <option value="oldest" selected="@(Model.SelectedSort == "oldest" ? "selected" : null)">Thời gian đăng: Cũ</option>
@@ -67,7 +86,7 @@
         let loadedCount = @Model.Listings.Count;
         const categoryId = '@(Model.SelectedCategoryId?.ToString() ?? string.Empty)';
         const sort = '@Model.SelectedSort';
-
+        const keyword = '@(Model.SelectedKeyword ?? string.Empty)';
         const updateButtonState = () => {
             if (loadedCount >= totalCount) {
                 loadMoreBtn.disabled = true;
@@ -80,53 +99,59 @@
 
         updateButtonState();
 
-        loadMoreBtn.addEventListener('click', async () => {
-            if (loadMoreBtn.disabled) return;
+            loadMoreBtn.addEventListener('click', async () => {
+        if (loadMoreBtn.disabled) return;
 
-            loadMoreBtn.disabled = true;
-            loadMoreBtn.textContent = 'Đang tải...';
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.textContent = 'Đang tải...';
 
-            currentPage += 1;
-            const params = new URLSearchParams({
-                page: currentPage.toString(),
-                pageSize: pageSize.toString(),
-                sort
+        currentPage += 1;
+        const params = new URLSearchParams({
+            page: currentPage.toString(),
+            pageSize: pageSize.toString(),
+            sort
+        });
+
+        if (categoryId) {
+            params.set('categoryId', categoryId);
+        }
+        if (keyword) {
+            params.set('keyword', keyword);
+        }
+
+        try {
+            const response = await fetch(`/Tat-ca-bai-dang/tai-them?${params.toString()}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
 
-            if (categoryId) {
-                params.set('categoryId', categoryId);
+            if (!response.ok) {
+                throw new Error('Không thể tải thêm bài đăng.');
             }
 
-            try {
-                const response = await fetch(`/Tat-ca-bai-dang/tai-them?${params.toString()}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
+            const html = await response.text();
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = html;
 
-                if (!response.ok) {
-                    throw new Error('Không thể tải thêm bài đăng.');
-                }
+            // Lấy đúng các card mới theo class riêng
+            const newItems = tempContainer.querySelectorAll('.listing-card');
 
-                const html = await response.text();
-                const tempContainer = document.createElement('div');
-                tempContainer.innerHTML = html;
-                const newItems = tempContainer.querySelectorAll('.col-6.col-md-4.col-lg-2.d-flex');
-
-                if (newItems.length === 0) {
-                    loadedCount = totalCount;
-                    updateButtonState();
-                    return;
-                }
-
-                const listingContainer = document.getElementById('listingContainer');
-                listingContainer.insertAdjacentHTML('beforeend', html);
-                loadedCount += newItems.length;
-
-                newItems[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (newItems.length === 0) {
+                loadedCount = totalCount;
                 updateButtonState();
-            } catch {
-                loadMoreBtn.disabled = false;
-                loadMoreBtn.textContent = 'Tải thêm';
+                return;
             }
-        });
+
+            const listingContainer = document.getElementById('listingContainer');
+            newItems.forEach(item => listingContainer.appendChild(item));
+
+            loadedCount += newItems.length;
+            newItems[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            updateButtonState();
+        } catch {
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'Tải thêm';
+        }
+    });
+
     })();
 </script>

@@ -19,6 +19,7 @@ namespace TinTot.Application.DTOs
         public List<CategoryDto> Categories { get; set; } = new();
         public Dictionary<int, decimal> UserRatingAvg { get; set; } = new();
         public int? SelectedCategoryId { get; set; }
+        public string? SelectedKeyword { get; set; }
         public string SelectedSort { get; set; } = "newest";
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 12;

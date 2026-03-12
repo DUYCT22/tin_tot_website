@@ -33,16 +33,18 @@ namespace TinTot.Application.Services.Home
                 UserRatingAvg = ratingAvg
             };
         }
-        public async Task<AllListingsPageDto> GetAllListingsPageDataAsync(int? currentUserId, int? categoryId, string? sort, int page = 1, int pageSize = 12)
+        public async Task<AllListingsPageDto> GetAllListingsPageDataAsync(int? currentUserId, int? categoryId, string? keyword, string? sort, int page = 1, int pageSize = 12)
         {
             var normalizedSort = NormalizeSort(sort);
             var normalizedPage = page < 1 ? 1 : page;
+            var normalizedKeyword = NormalizeKeyword(keyword);
             var normalizedPageSize = pageSize < 1 ? 12 : pageSize;
 
             var categories = await _homeReadRepository.GetAllCategoriesAsync();
             var (listings, totalCount) = await _homeReadRepository.GetFilteredListingsAsync(
                 currentUserId,
                 categoryId,
+                normalizedKeyword,
                 normalizedSort,
                 normalizedPage,
                 normalizedPageSize);
@@ -61,13 +63,22 @@ namespace TinTot.Application.Services.Home
                 Listings = listings,
                 UserRatingAvg = ratingAvg,
                 SelectedCategoryId = categoryId,
+                SelectedKeyword = normalizedKeyword,
                 SelectedSort = normalizedSort,
                 Page = normalizedPage,
                 PageSize = normalizedPageSize,
                 TotalCount = totalCount
             };
         }
+        private static string? NormalizeKeyword(string? keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return null;
+            }
 
+            return keyword.Trim();
+        }
         private static string NormalizeSort(string? sort)
             => sort?.ToLowerInvariant() switch
             {
