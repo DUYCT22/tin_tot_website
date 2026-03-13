@@ -120,6 +120,25 @@
                     </div>
                 }
             </div>
+            @if (Model.Listing.SellerRatings.Any())
+            {
+                <div class="border rounded-3 p-3 bg-light-subtle">
+                    <h3 class="h6 mb-3">Đánh giá gần đây về người bán</h3>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var rating in Model.Listing.SellerRatings)
+                        {
+                            <div class="bg-white border rounded-3 p-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>@rating.ReviewerName</strong>
+                                    <span class="text-warning">@rating.Score.ToString("0.0") ★</span>
+                                </div>
+                                <div class="small text-muted mb-1">@(rating.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")</div>
+                                <div class="small">@rating.Comment</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </section>
@@ -187,7 +206,7 @@
                 });
             });
 
-            const showToast = (message) => alert(message);
+            const showToast = (message) => Swal.fire(message);
 
             const setFavoriteState = (isActive) => {
                 if (!favoriteBtn) return;

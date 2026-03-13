@@ -26,6 +26,13 @@ namespace TinTot.Infrastructure.Repositories
             => _context.Notifications
                 .AsNoTracking()
                 .CountAsync(x => x.UserId == userId && !x.IsRead);
+        public Task<bool> ExistsAsync(int userId, int? relatedUserId, int? listingId, string message)
+           => _context.Notifications
+               .AsNoTracking()
+               .AnyAsync(x => x.UserId == userId
+                              && x.RelatedUserId == relatedUserId
+                              && x.ListingId == listingId
+                              && x.Message == message);
 
         public Task AddAsync(Notification notification) => _context.Notifications.AddAsync(notification).AsTask();
 

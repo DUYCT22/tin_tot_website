@@ -8,6 +8,8 @@ namespace TinTot.Application.Interfaces.Listings
         Task<string?> GetUserDisplayNameAsync(int userId);
         Task<string?> GetListingTitleAsync(int listingId);
         Task<bool> SellerExistsAsync(int sellerId);
+        Task<bool> SellerHasSoldListingAsync(int sellerId);
+        Task<bool> HasUserRatedSellerAsync(int reviewerId, int sellerId);
 
         Task<bool> IsFavoritedAsync(int userId, int listingId);
         Task AddFavoriteAsync(int userId, int listingId);
@@ -16,7 +18,7 @@ namespace TinTot.Application.Interfaces.Listings
         Task<bool> IsFollowingAsync(int followerId, int sellerId);
         Task AddFollowAsync(int followerId, int sellerId);
         Task RemoveFollowAsync(int followerId, int sellerId);
-
+        Task AddRatingAsync(int userId, int reviewerId, decimal score, string? comment);
         Task SaveChangesAsync();
     }
 }

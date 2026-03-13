@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Tin_Tot_Website.Services;
 using TinTot.Application.Interfaces.Listings;
@@ -31,7 +32,7 @@ namespace Tin_Tot_Website.Controllers
 
             var isFavorited = false;
             var isFollowing = false;
-
+            var canRateSeller = false;
             if (!string.IsNullOrWhiteSpace(listingKey))
             {
                 var listingId = _entityKeyService.UnprotectId("listing", listingKey);
@@ -47,10 +48,11 @@ namespace Tin_Tot_Website.Controllers
                 if (sellerId.HasValue)
                 {
                     isFollowing = await _interactionService.IsFollowingSellerAsync(userId.Value, sellerId.Value);
+                    canRateSeller = await _interactionService.CanRateSellerAsync(userId.Value, sellerId.Value);
                 }
             }
 
-            return Ok(new { success = true, isFavorited, isFollowing });
+            return Ok(new { success = true, isFavorited, isFollowing, canRateSeller });
         }
 
         [Authorize]
@@ -164,11 +166,46 @@ namespace Tin_Tot_Website.Controllers
                 return NotFound(new { success = false, message = ex.Message });
             }
         }
+        [Authorize]
+        [HttpPost("ratings/{sellerKey}")]
+        public async Task<IActionResult> RateSeller(string sellerKey, [FromBody] CreateSellerRatingRequest request)
+        {
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                return Unauthorized(new { success = false, message = "Phiên đăng nhập không hợp lệ." });
+            }
 
+            var sellerId = _entityKeyService.UnprotectId("seller", sellerKey);
+            if (!sellerId.HasValue)
+            {
+                return BadRequest(new { success = false, message = "Mã người bán không hợp lệ." });
+            }
+
+            try
+            {
+                var message = await _interactionService.RateSellerAsync(userId.Value, sellerId.Value, request.Score, request.Comment);
+                return Ok(new { success = true, message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
         private int? GetCurrentUserId()
         {
             var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(raw, out var id) ? id : null;
+        }
+        public class CreateSellerRatingRequest
+        {
+            [Range(1, 5)]
+            public decimal Score { get; set; }
+            public string? Comment { get; set; }
         }
     }
 }

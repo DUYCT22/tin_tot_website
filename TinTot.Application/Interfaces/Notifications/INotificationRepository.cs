@@ -11,6 +11,7 @@ namespace TinTot.Application.Interfaces.Notifications
     {
         Task<List<Notification>> GetRecentByUserIdAsync(int userId, int take = 20);
         Task<int> GetUnreadCountAsync(int userId);
+        Task<bool> ExistsAsync(int userId, int? relatedUserId, int? listingId, string message);
         Task AddAsync(Notification notification);
         Task MarkAllAsReadAsync(int userId);
         Task SaveChangesAsync();

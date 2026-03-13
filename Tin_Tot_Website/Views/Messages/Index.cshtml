@@ -151,7 +151,7 @@
                     body: JSON.stringify({ receiverKey: selectedReceiverKey, listingKey: selectedListingKey, content })
                 });
                 const json = await resp.json();
-                if (!resp.ok || !json.success) return alert(json.message || 'Gửi tin nhắn thất bại.');
+                if (!resp.ok || !json.success) return Swal.fire(json.message || 'Gửi tin nhắn thất bại.');
 
                 chatInput.value = '';
                 selectedListingKey = null;

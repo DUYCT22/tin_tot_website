@@ -22,10 +22,17 @@ namespace TinTot.Application.DTOs.Listing
         public string? UserPhone { get; set; }
         public decimal UserRatingAverage { get; set; }
         public int UserRatingCount { get; set; }
+        public List<ListingSellerRatingDto> SellerRatings { get; set; } = new();
         public List<string> ImageUrls { get; set; } = new();
         public List<HomeListingDto> RelatedListings { get; set; } = new();
     }
-
+    public class ListingSellerRatingDto
+    {
+        public string ReviewerName { get; set; } = string.Empty;
+        public decimal Score { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public DateTime? CreatedAt { get; set; }
+    }
     public class SellerProfileDto
     {
         public int SellerId { get; set; }

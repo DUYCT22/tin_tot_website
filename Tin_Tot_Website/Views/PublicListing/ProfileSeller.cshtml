@@ -4,7 +4,7 @@
 }
 
 <section class="mb-4">
-    <div class="card border-0 shadow-sm">
+    <div class="border-0 shadow-sm">
         <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
                 <img src="@(Model.Seller.SellerAvatar ?? "/favicon.ico")" class="rounded-circle border" style="width:82px;height:82px;object-fit:cover" alt="avatar" />
@@ -30,7 +30,34 @@
         </div>
     </div>
 </section>
-
+<section id="ratingSection" class="mb-4 d-none">
+    <div class="border-0 shadow-sm">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Đánh giá người bán</h2>
+            <p class="small text-muted mb-3">
+                Tin Tốt là nền tảng trung gian kết nối người mua và người bán, không trực tiếp phát sinh giao dịch.
+                Bạn có thể đánh giá trải nghiệm của mình và tự chịu trách nhiệm với nội dung đánh giá đã gửi.
+            </p>
+            <div class="mb-3">
+                <label for="ratingScore" class="form-label">Điểm đánh giá</label>
+                <select id="ratingScore" class="form-select">
+                    <option value="5">5 - Rất tốt</option>
+                    <option value="4">4 - Tốt</option>
+                    <option value="3">3 - Bình thường</option>
+                    <option value="2">2 - Chưa tốt</option>
+                    <option value="1">1 - Kém</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="ratingComment" class="form-label">Nội dung đánh giá</label>
+                <textarea id="ratingComment" class="form-control" rows="4" maxlength="1000" placeholder="Nhập đánh giá của bạn..."></textarea>
+            </div>
+            <button id="submitRatingBtn" class="btn btn-warning" type="button">
+                <i class="bi bi-star-fill me-1"></i>Gửi đánh giá
+            </button>
+        </div>
+    </div>
+</section>
 <section>
     <h2 class="h4 fw-bold mb-3">Bài đăng đang hiển thị</h2>
     @await Html.PartialAsync("~/Views/Shared/Components/_ListingCardGrid.cshtml", Model.ActiveListingsSection)
@@ -42,7 +69,17 @@
         (() => {
             const token = localStorage.getItem('tin_tot_token');
             const followBtn = document.getElementById('followBtn');
-            if (!followBtn || !token) return;
+            const ratingSection = document.getElementById('ratingSection');
+            const submitRatingBtn = document.getElementById('submitRatingBtn');
+            const ratingScore = document.getElementById('ratingScore');
+            const ratingComment = document.getElementById('ratingComment');
+            const showNotice = (message, icon = 'info') => Swal.fire({ text: message, icon });
+            if (!followBtn) return;
+
+            if (!token) {
+                followBtn.addEventListener('click', () => showNotice('Bạn cần đăng nhập để theo dõi người bán.'));
+                return;
+            }
 
             const setFollowState = (isActive) => {
                 followBtn.className = isActive ? 'btn btn-info btn-sm' : 'btn btn-outline-info btn-sm';
@@ -57,7 +94,10 @@
             fetch(`/api/interactions/state?sellerKey=${encodeURIComponent(sellerKey)}`, {
                 headers: { Authorization: `Bearer ${token}` }
             }).then(r => r.ok ? r.json() : null).then(p => {
-                if (p?.success) setFollowState(Boolean(p.isFollowing));
+                if (p?.success) {
+                    setFollowState(Boolean(p.isFollowing));
+                    ratingSection?.classList.toggle('d-none', !Boolean(p.canRateSeller));
+                }
             });
 
             followBtn.addEventListener('click', async () => {
@@ -68,10 +108,45 @@
                 });
                 const payload = await response.json();
                 if (!response.ok || !payload.success) {
-                    alert(payload.message || 'Không thể cập nhật theo dõi.');
+                    showNotice(payload.message || 'Không thể cập nhật theo dõi.', 'error');
                     return;
                 }
                 setFollowState(!isActive);
+                showNotice(payload.message || 'Cập nhật theo dõi thành công.', 'success');
+            });
+
+            submitRatingBtn?.addEventListener('click', async () => {
+                const score = Number(ratingScore?.value || 0);
+                const comment = (ratingComment?.value || '').trim();
+
+                if (!score || score < 1 || score > 5) {
+                    showNotice('Vui lòng chọn điểm đánh giá từ 1 đến 5.', 'warning');
+                    return;
+                }
+
+                if (!comment) {
+                    showNotice('Vui lòng nhập nội dung đánh giá.', 'warning');
+                    return;
+                }
+
+                const response = await fetch(`/api/interactions/ratings/${encodeURIComponent(sellerKey)}`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ score, comment })
+                });
+
+                const payload = await response.json();
+                if (!response.ok || !payload.success) {
+                    showNotice(payload.message || 'Không thể gửi đánh giá.', 'error');
+                    return;
+                }
+
+                ratingComment.value = '';
+                ratingScore.value = '5';
+                showNotice(payload.message || 'Gửi đánh giá thành công.', 'success');
             });
         })();
     </script>
