@@ -17,6 +17,23 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Tin_Tot_Website.styles.css" asp-append-version="true" />
     <style>
+        .card-text {
+            font-size: 0.85rem;
+        }
+
+        .hover-zoom {
+            transition: transform 0.3s ease;
+        }
+
+            .hover-zoom:hover {
+                transform: scale(1.05);
+            }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
         .btn-no-outline:focus {
             outline: none !important;
             box-shadow: none !important;
@@ -76,7 +93,13 @@
                 transform: translateY(-2px);
             }
 
-
+        .listing-card{
+                        transition: all 0.3s ease;
+        }
+            .listing-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            }
         .user-avatar {
             width: 32px;
             height: 32px;

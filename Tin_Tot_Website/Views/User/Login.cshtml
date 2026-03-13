@@ -61,7 +61,7 @@
             border-radius: 0 20px 20px 0; /* bo góc mềm mại */
         }
 
-        .auth-shell.register-mode .auth-overlay {
+        .auth-shell.login-mode .auth-overlay {
             transform: translateX(100%);
         }
 
@@ -130,7 +130,7 @@
                 border-radius: 0;
             }
 
-            .auth-shell.register-mode .auth-overlay {
+            .auth-shell.login-mode .auth-overlay {
                 transform: translateY(100%);
             }
         }
@@ -253,12 +253,12 @@
             const toggleMode = document.getElementById("toggleMode");
 
             const modeText = {
-              register: {
+              login: {
                 title: "Chưa có tài khoản?",
                 desc: "Nhấn để đăng ký tài khoản mới.",
                 btn: "Đăng ký"
               },
-              login: {
+              register: {
                 title: "Đã có tài khoản?",
                 desc: "Quay lại đăng nhập.",
                 btn: "Đăng nhập"
@@ -269,7 +269,7 @@
 
             function applyMode(mode, push = false) {
               currentMode = mode;
-              authShell.classList.toggle("register-mode", mode === "register");
+              authShell.classList.toggle("login-mode", mode === "login");
 
               const t = modeText[mode];
               overlayTitle.textContent = t.title;
@@ -333,6 +333,9 @@
 
                 if (res.ok) {
                   localStorage.setItem("tin_tot_token", data.token);
+                  if (data.user) {
+                    localStorage.setItem("tin_tot_user", JSON.stringify(data.user));
+                  }
                   await Swal.fire("Đăng nhập thành công", "", "success");
                   location.href = data.redirectUrl ?? "/";
                 } else {
