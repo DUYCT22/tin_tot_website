@@ -17,6 +17,11 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Tin_Tot_Website.styles.css" asp-append-version="true" />
     <style>
+        .btn-no-outline:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
         .search-box {
             border: 2px solid #ccc;
             border-radius: 50px;
@@ -26,7 +31,7 @@
 
             .search-box select,
             .search-box input {
-                border: none !important; /* bỏ viền mặc định */
+                border: none !important;
                 box-shadow: none !important;
             }
 
@@ -169,7 +174,7 @@
 
                             <div class="position-relative flex-grow-1">
                                 <input class="form-control border-0 pe-5" type="search" name="keyword" value="@navbarSelectedKeyword" placeholder="Tìm kiếm bài đăng..." autocomplete="off" />
-                                <button type="submit" class="btn btn-link position-absolute end-0 top-0 mt-1 me-2 text-secondary">
+                                <button type="submit" class="btn btn-link position-absolute end-0 top-0 mt-0 me-2 text-secondary btn-no-outline">
                                     <i class="bi bi-search"></i>
                                 </button>
                             </div>
