@@ -76,13 +76,91 @@
             <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-2"></div>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn btn-primary">
-            <span class="label">Đăng tin</span>
-            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" id="previewBtn" class="btn btn-outline-secondary">
+                <i class="bi bi-eye me-1"></i> Xem trước
+            </button>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+                <span class="label">Đăng tin</span>
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+        </div>
     </div>
 </form>
+<div class="modal fade" id="previewListingModal" tabindex="-1" aria-labelledby="previewListingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewListingModalLabel">Xem trước tin đăng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <section class="mb-4">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div id="previewCarouselImages" class="carousel slide shadow-sm rounded-3 overflow-hidden" data-bs-ride="false">
+                                <div id="previewCarouselInner" class="carousel-inner bg-light" style="height: 420px; overflow: hidden;"></div>
 
+                                <button id="previewCarouselPrev" class="carousel-control-prev custom-carousel-btn" type="button" data-bs-target="#previewCarouselImages" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button id="previewCarouselNext" class="carousel-control-next custom-carousel-btn" type="button" data-bs-target="#previewCarouselImages" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <h1 id="previewTitle" class="h3 mb-2"></h1>
+                            <p id="previewPrice" class="h4 text-danger fw-bold"></p>
+                            <p class="mb-1"><strong>Địa điểm:</strong> <span id="previewLocation"></span></p>
+                            <p class="text-muted"><strong>Ngày đăng:</strong> <span id="previewCreatedAt"></span></p>
+
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <button class="btn btn-outline-danger disabled" type="button" tabindex="-1" aria-disabled="true" disabled>
+                                    <i class="bi bi-heart me-1"></i> Lưu tin
+                                </button>
+                                <button class="btn btn-outline-primary disabled" type="button" tabindex="-1" aria-disabled="true" disabled>
+                                    <i class="bi bi-share me-1"></i> Chia sẻ
+                                </button>
+                                <button class="btn btn-success disabled" type="button" tabindex="-1" aria-disabled="true" disabled>
+                                    <i class="bi bi-telephone-fill me-1"></i> Gọi ngay
+                                </button>
+                            </div>
+
+                            <hr />
+
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                                <div class="d-flex align-items-center text-dark text-decoration-none">
+                                    <img src="/favicon.ico" class="rounded-circle border me-2" style="width:50px;height:50px;object-fit:cover" alt="seller" />
+                                    <div>
+                                        <div class="fw-semibold">Người bán</div>
+                                        <div class="small text-muted">⭐ 0.0 (0 đánh giá)</div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary disabled" type="button" tabindex="-1" aria-disabled="true" disabled>
+                                        <i class="bi bi-chat-dots me-1"></i> Nhắn tin
+                                    </button>
+                                    <button class="btn btn-outline-info disabled" type="button" tabindex="-1" aria-disabled="true" disabled>
+                                        <i class="bi bi-person-plus-fill me-1"></i> Theo dõi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-1">
+                    <h2 class="h5">Chi tiết mô tả</h2>
+                    <div id="previewDescription" class="mb-0 listing-description"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <script>
@@ -95,6 +173,9 @@
             const imagePreview = document.getElementById('imagePreview');
             const formAlert = document.getElementById('formAlert');
             const submitBtn = document.getElementById('submitBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const previewModalElement = document.getElementById('previewListingModal');
+            const previewModal = new bootstrap.Modal(previewModalElement);
 
             const descriptionEditor = CKEDITOR.replace('descriptionInput', {
                 allowedContent: true,
@@ -109,6 +190,69 @@
             const setAlert = (message, type) => {
                 formAlert.className = `alert alert-${type}`;
                 formAlert.textContent = message;
+            };
+            const formatPriceVnd = (rawValue) => {
+                const value = Number(rawValue || 0);
+                return `${value.toLocaleString('vi-VN')} đ`;
+            };
+
+            const formatCurrentDateTime = () => {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            };
+
+            const showPreview = () => {
+                updateFullAddress();
+
+                const title = document.getElementById('titleInput').value.trim();
+                const description = descriptionEditor.getData().trim();
+                const location = document.getElementById('fullAddress').value.trim();
+                const price = document.getElementById('priceInput').value;
+
+                if (!subCategoryDropdown.value || !title || !description || !price || !location || imagesInput.files.length === 0) {
+                    setAlert('Vui lòng điền đầy đủ danh mục, tiêu đề, mô tả, giá, địa chỉ và ảnh trước khi xem trước.', 'warning');
+                    formAlert.classList.remove('d-none');
+                    return;
+                }
+
+                setAlert('', 'info');
+                formAlert.classList.add('d-none');
+
+                document.getElementById('previewTitle').textContent = title;
+                document.getElementById('previewPrice').textContent = formatPriceVnd(price);
+                document.getElementById('previewLocation').textContent = location;
+                document.getElementById('previewCreatedAt').textContent = formatCurrentDateTime();
+                document.getElementById('previewDescription').innerHTML = description;
+
+                const previewCarouselInner = document.getElementById('previewCarouselInner');
+                previewCarouselInner.innerHTML = '';
+
+                [...imagesInput.files].forEach((file, index) => {
+                    if (!file.type.startsWith('image/')) return;
+                    const carouselItem = document.createElement('div');
+                    carouselItem.className = `carousel-item ${index === 0 ? 'active' : ''} h-100`;
+
+                    const image = document.createElement('img');
+                    image.src = URL.createObjectURL(file);
+                    image.className = 'd-block w-100 h-100';
+                    image.style.objectFit = 'contain';
+                    image.alt = `preview image ${index + 1}`;
+
+                    carouselItem.appendChild(image);
+                    previewCarouselInner.appendChild(carouselItem);
+                });
+
+                const hasManyImages = imagesInput.files.length > 1;
+                document.getElementById('previewCarouselPrev').classList.toggle('d-none', !hasManyImages);
+                document.getElementById('previewCarouselNext').classList.toggle('d-none', !hasManyImages);
+
+                previewModal.show();
             };
 
             const updateFullAddress = () => {
@@ -204,7 +348,7 @@
 
             document.getElementById('wardsSelect').addEventListener('change', updateFullAddress);
             document.getElementById('houseNumber').addEventListener('input', updateFullAddress);
-
+            previewBtn.addEventListener('click', showPreview);
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 setAlert('', 'info');

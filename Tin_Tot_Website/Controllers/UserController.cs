@@ -30,13 +30,15 @@ namespace Tin_Tot_Website.Controllers
         [HttpGet("~/Dang-nhap")]
         public IActionResult LoginPage()
         {
+            ViewData["InitialMode"] = "login";
             return View("~/Views/User/Login.cshtml");
         }
 
         [HttpGet("~/Dang-ky")]
         public IActionResult RegisterPage()
         {
-            return View("~/Views/User/Register.cshtml");
+            ViewData["InitialMode"] = "register";
+            return View("~/Views/User/Login.cshtml");
         }
 
         [HttpPost("register")]
