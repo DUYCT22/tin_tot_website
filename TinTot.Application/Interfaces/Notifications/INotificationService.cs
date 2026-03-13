@@ -13,5 +13,6 @@ namespace TinTot.Application.Interfaces.Notifications
         Task<int> GetUnreadCountAsync(int userId);
         Task MarkAllAsReadAsync(int userId);
         Task CreateAndPublishAsync(int userId, int? relatedUserId, int? listingId, string message);
+        Task<bool> CreateAndPublishUniqueAsync(int userId, int? relatedUserId, int? listingId, string message);
     }
 }

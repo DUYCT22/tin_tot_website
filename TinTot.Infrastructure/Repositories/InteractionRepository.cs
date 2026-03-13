@@ -27,7 +27,8 @@ namespace TinTot.Infrastructure.Repositories
             .Select(x => x.Title)
             .FirstOrDefaultAsync();
         public Task<bool> SellerExistsAsync(int sellerId) => _context.Users.AnyAsync(x => x.Id == sellerId && x.Status);
-
+        public Task<bool> SellerHasSoldListingAsync(int sellerId) => _context.Listings.AnyAsync(x => x.UserId == sellerId && x.Status == 2);
+        public Task<bool> HasUserRatedSellerAsync(int reviewerId, int sellerId) => _context.Ratings.AnyAsync(x => x.ReviewerId == reviewerId && x.UserId == sellerId);
         public Task<bool> IsFavoritedAsync(int userId, int listingId) => _context.Favorites.AnyAsync(x => x.UserId == userId && x.ListingId == listingId);
 
         public async Task AddFavoriteAsync(int userId, int listingId)
@@ -69,7 +70,17 @@ namespace TinTot.Infrastructure.Repositories
                 _context.Follows.Remove(follow);
             }
         }
-
+        public async Task AddRatingAsync(int userId, int reviewerId, decimal score, string? comment)
+        {
+            await _context.Ratings.AddAsync(new Rating
+            {
+                UserId = userId,
+                ReviewerId = reviewerId,
+                Score = score,
+                Comment = comment,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
         public Task SaveChangesAsync() => _context.SaveChangesAsync();
     }
 }

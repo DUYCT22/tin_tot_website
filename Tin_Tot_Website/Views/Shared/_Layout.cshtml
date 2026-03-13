@@ -214,7 +214,7 @@
                     </div>
 
                     <div id="messageActions" class="dropdown d-none me-2">
-                        <button class="btn btn-light border position-relative" id="messageBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Tin nhắn" type="button">
+                        <button class="btn border position-relative border-0 btn-no-outline" id="messageBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Tin nhắn" type="button">
                             <i class="bi bi-chat-dots"></i>
                             <span id="messageBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
                         </button>
@@ -241,7 +241,7 @@
                         </div>
                     </div>
                     <div id="notificationActions" class="dropdown d-none me-2">
-                        <button class="btn btn-light border position-relative" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo" type="button">
+                        <button class="btn border position-relative border-0 btn-no-outline" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" title="Thông báo" type="button">
                             <i class="bi bi-bell"></i>
                             <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
                         </button>
@@ -254,7 +254,7 @@
                         </div>
                     </div>
                     <div id="userActions" class="dropdown d-none">
-                        <button class="btn btn-light border dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn border dropdown-toggle d-flex align-items-center gap-2 border-0" data-bs-toggle="dropdown" aria-expanded="false">
                             <img id="userAvatar" class="user-avatar" src="/favicon.ico" alt="Avatar" />
                             <span id="userName" class="fw-semibold"></span>
                         </button>
@@ -323,6 +323,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         (async () => {
@@ -502,7 +503,7 @@
                         });
                         const json = await resp.json();
                         if (!resp.ok || !json.success) {
-                            alert(json.message || 'Gửi tin nhắn thất bại.');
+                            Swal.fire(json.message || 'Gửi tin nhắn thất bại.');
                             return;
                         }
 

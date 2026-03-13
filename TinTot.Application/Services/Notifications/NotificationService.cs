@@ -31,6 +31,22 @@ namespace TinTot.Application.Services.Notifications
 
         public async Task CreateAndPublishAsync(int userId, int? relatedUserId, int? listingId, string message)
         {
+            await CreateAndPublishInternalAsync(userId, relatedUserId, listingId, message);
+        }
+
+        public async Task<bool> CreateAndPublishUniqueAsync(int userId, int? relatedUserId, int? listingId, string message)
+        {
+            if (await _repository.ExistsAsync(userId, relatedUserId, listingId, message))
+            {
+                return false;
+            }
+
+            await CreateAndPublishInternalAsync(userId, relatedUserId, listingId, message);
+            return true;
+        }
+
+        private async Task CreateAndPublishInternalAsync(int userId, int? relatedUserId, int? listingId, string message)
+        {
             var notification = new Notification
             {
                 UserId = userId,

@@ -39,7 +39,20 @@ namespace TinTot.Infrastructure.Repositories
                     Count = g.Count()
                 })
                 .FirstOrDefaultAsync();
-
+            var sellerRatings = await _context.Ratings
+                .AsNoTracking()
+                .Include(x => x.Reviewer)
+                .Where(x => x.UserId == listing.UserId && x.Score.HasValue)
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(8)
+                .Select(x => new ListingSellerRatingDto
+                {
+                    ReviewerName = x.Reviewer.FullName ?? x.Reviewer.LoginName ?? "Người dùng",
+                    Score = x.Score ?? 0,
+                    Comment = x.Comment ?? string.Empty,
+                    CreatedAt = x.CreatedAt
+                })
+                .ToListAsync();
             var parentCategoryId = await _context.Categories
                 .AsNoTracking()
                 .Where(c => c.Id == listing.CategoryId)
@@ -88,6 +101,7 @@ namespace TinTot.Infrastructure.Repositories
                 UserPhone = listing.User?.Phone,
                 UserRatingAverage = ratingAgg?.Avg ?? 0,
                 UserRatingCount = ratingAgg?.Count ?? 0,
+                SellerRatings = sellerRatings,
                 ImageUrls = listing.Images.OrderBy(x => x.Id).Select(x => x.ImageUrl ?? string.Empty).Where(x => !string.IsNullOrWhiteSpace(x)).ToList(),
                 RelatedListings = relatedListings
             };

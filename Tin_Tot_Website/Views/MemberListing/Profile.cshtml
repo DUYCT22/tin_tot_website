@@ -7,7 +7,7 @@
 
 <div class="row g-4">
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
+        <div class="border-0 shadow-sm">
             <div class="position-relative">
                 <img id="currentAvatar" src="@(string.IsNullOrWhiteSpace(Model.User.Avatar) ? defaultAvatar : Model.User.Avatar)" class="w-100 rounded-top" style="height:320px;object-fit:cover" alt="avatar" />
                 <button class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3" data-bs-toggle="modal" data-bs-target="#avatarModal">
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm mt-3">
+        <div class="border-0 shadow-sm mt-3">
             <div class="card-body">
                 <h5 class="mb-3">Chỉnh sửa thông tin</h5>
                 <div id="profileAlert" class="alert d-none"></div>
@@ -161,7 +161,7 @@
                         method: 'POST', headers: { Authorization: `Bearer ${token}` }
                     });
                     const result = await response.json();
-                    if (!response.ok) { alert(result.message || 'Không thể cập nhật.'); return; }
+                    if (!response.ok) { Swal.fire(result.message || 'Không thể cập nhật.'); return; }
                     window.location.reload();
                 });
             });
@@ -174,7 +174,7 @@
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const result = await response.json();
-                    if (!response.ok) { alert(result.message || 'Không thể xóa bài đăng.'); return; }
+                    if (!response.ok) { Swal.fire(result.message || 'Không thể xóa bài đăng.'); return; }
                     window.location.reload();
                 });
             });
