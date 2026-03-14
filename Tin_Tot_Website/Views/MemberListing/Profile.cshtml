@@ -153,31 +153,88 @@
                 el.textContent = message;
             };
 
-            document.querySelectorAll('.btn-mark-sold').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    if (!confirm('Xác nhận đánh dấu đã bán?')) return;
-                    const id = btn.dataset.id;
-                    const response = await fetch(`/api/member/listings/${id}/mark-sold`, {
-                        method: 'POST', headers: { Authorization: `Bearer ${token}` }
+                    document.querySelectorAll('.btn-mark-sold').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const resultConfirm = await Swal.fire({
+                    title: 'Xác nhận',
+                    text: 'Bạn có chắc muốn đánh dấu đã bán?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy'
+                });
+
+                if (!resultConfirm.isConfirmed) return;
+
+                const id = btn.dataset.id;
+                const response = await fetch(`/api/member/listings/${id}/mark-sold`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        title: 'Lỗi',
+                        text: result.message || 'Không thể cập nhật.',
+                        icon: 'error'
                     });
-                    const result = await response.json();
-                    if (!response.ok) { Swal.fire(result.message || 'Không thể cập nhật.'); return; }
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Thành công',
+                    text: 'Tin đã được đánh dấu là đã bán.',
+                    icon: 'success'
+                }).then(() => {
                     window.location.reload();
                 });
             });
-            document.querySelectorAll('.btn-delete-listing').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    if (!confirm('Xác nhận xóa bài đăng?')) return;
-                    const id = btn.dataset.id;
-                    const response = await fetch(`/api/listings/${id}`, {
-                        method: 'DELETE',
-                        headers: { Authorization: `Bearer ${token}` }
+        });
+
+                  document.querySelectorAll('.btn-delete-listing').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const resultConfirm = await Swal.fire({
+                    title: 'Xác nhận',
+                    text: 'Bạn có chắc muốn xóa bài đăng này?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6'
+                });
+
+                if (!resultConfirm.isConfirmed) return;
+
+                const id = btn.dataset.id;
+                const response = await fetch(`/api/listings/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        title: 'Lỗi',
+                        text: result.message || 'Không thể xóa bài đăng.',
+                        icon: 'error'
                     });
-                    const result = await response.json();
-                    if (!response.ok) { Swal.fire(result.message || 'Không thể xóa bài đăng.'); return; }
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Thành công',
+                    text: 'Bài đăng đã được xóa.',
+                    icon: 'success'
+                }).then(() => {
                     window.location.reload();
                 });
             });
+        });
+
             const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
             const editCategoryId = document.getElementById('editCategoryId');
 
@@ -212,48 +269,81 @@
                 });
             });
 
-            document.getElementById('saveListingEditBtn').addEventListener('click', async () => {
-                const id = document.getElementById('editListingId').value;
-                const response = await fetch(`/api/member/listings/${id}/quick-update`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ categoryId: Number(editCategoryId.value), price: Number(document.getElementById('editPrice').value) })
+                    document.getElementById('saveListingEditBtn').addEventListener('click', async () => {
+            const id = document.getElementById('editListingId').value;
+            const response = await fetch(`/api/member/listings/${id}/quick-update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    categoryId: Number(editCategoryId.value),
+                    price: Number(document.getElementById('editPrice').value)
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: result.message || 'Cập nhật thất bại.',
+                    icon: 'error'
                 });
-                const result = await response.json();
-                if (!response.ok) {
-                    showAlert(document.getElementById('editAlert'), 'danger', result.message || 'Cập nhật thất bại.');
-                    return;
-                }
+                return;
+            }
+
+            Swal.fire({
+                title: 'Thành công',
+                text: 'Thông tin bài đăng đã được cập nhật.',
+                icon: 'success'
+            }).then(() => {
                 window.location.reload();
             });
+        });
 
-            document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-                const formData = new FormData();
-                formData.append('fullName', document.getElementById('fullNameInput').value.trim());
-                formData.append('phone', document.getElementById('phoneInput').value.trim());
 
-                const response = await fetch('/api/member/profile/update', {
-                    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
-                });
-                const result = await response.json();
-                const profileAlert = document.getElementById('profileAlert');
+                    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('fullName', document.getElementById('fullNameInput').value.trim());
+            formData.append('phone', document.getElementById('phoneInput').value.trim());
 
-                if (!response.ok) {
-                    showAlert(profileAlert, 'danger', result.message || 'Cập nhật thất bại.');
-                    return;
-                }
-
-                showAlert(profileAlert, 'success', result.message || 'Đã cập nhật.');
-                document.getElementById('profileFullName').textContent = result.fullName;
-                document.getElementById('profilePhone').textContent = result.phone;
-
-                const rawProfile = localStorage.getItem('tin_tot_user');
-                if (rawProfile) {
-                    const profile = JSON.parse(rawProfile);
-                    profile.fullName = result.fullName;
-                    localStorage.setItem('tin_tot_user', JSON.stringify(profile));
-                }
+            const response = await fetch('/api/member/profile/update', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
             });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: result.message || 'Cập nhật thất bại.',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Thành công',
+                text: result.message || 'Đã cập nhật.',
+                icon: 'success'
+            });
+
+            document.getElementById('profileFullName').textContent = result.fullName;
+            document.getElementById('profilePhone').textContent = result.phone;
+
+            const rawProfile = localStorage.getItem('tin_tot_user');
+            if (rawProfile) {
+                const profile = JSON.parse(rawProfile);
+                profile.fullName = result.fullName;
+                profile.phone = result.phone;
+                localStorage.setItem('tin_tot_user', JSON.stringify(profile));
+            }
+        });
+
 
             document.getElementById('avatarInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
@@ -263,35 +353,52 @@
                 preview.classList.remove('d-none');
             });
 
-            document.getElementById('saveAvatarBtn').addEventListener('click', async () => {
-                const file = document.getElementById('avatarInput').files[0];
-                if (!file) {
-                    showAlert(document.getElementById('avatarAlert'), 'danger', 'Vui lòng chọn ảnh.');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('avatar', file);
-
-                const response = await fetch('/api/member/profile/avatar', {
-                    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+                    document.getElementById('saveAvatarBtn').addEventListener('click', async () => {
+            const file = document.getElementById('avatarInput').files[0];
+            if (!file) {
+                Swal.fire({
+                    title: 'Thông báo',
+                    text: 'Vui lòng chọn ảnh.',
+                    icon: 'warning'
                 });
-                const result = await response.json();
-                if (!response.ok) {
-                    showAlert(document.getElementById('avatarAlert'), 'danger', result.message || 'Đổi ảnh thất bại.');
-                    return;
-                }
+                return;
+            }
 
-                document.getElementById('currentAvatar').src = result.avatarUrl;
-                showAlert(document.getElementById('avatarAlert'), 'success', result.message || 'Thành công.');
+            const formData = new FormData();
+            formData.append('avatar', file);
 
-                const rawProfile = localStorage.getItem('tin_tot_user');
-                if (rawProfile) {
-                    const profile = JSON.parse(rawProfile);
-                    profile.avatar = result.avatarUrl;
-                    localStorage.setItem('tin_tot_user', JSON.stringify(profile));
-                }
+            const response = await fetch('/api/member/profile/avatar', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
             });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Swal.fire({
+                    title: 'Lỗi',
+                    text: result.message || 'Đổi ảnh thất bại.',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            document.getElementById('currentAvatar').src = result.avatarUrl;
+
+            Swal.fire({
+                title: 'Thành công',
+                text: result.message || 'Ảnh đại diện đã được cập nhật.',
+                icon: 'success'
+            });
+            const rawProfile = localStorage.getItem('tin_tot_user');
+            if (rawProfile) {
+                const profile = JSON.parse(rawProfile);
+                profile.avatar = result.avatarUrl;
+                localStorage.setItem('tin_tot_user', JSON.stringify(profile));
+            }
+        });
+
         })();
     </script>
 }

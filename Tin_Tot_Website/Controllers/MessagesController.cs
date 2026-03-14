@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using Tin_Tot_Website.Models.Messages;
 using Tin_Tot_Website.Services;
@@ -70,7 +71,7 @@ namespace Tin_Tot_Website.Controllers
 
             return Ok(new { success = true, data = payload });
         }
-
+        [EnableRateLimiting("MessageSendPolicy")]
         [HttpPost("api/messages/send")]
         public async Task<IActionResult> Send([FromBody] SendMessageRequestModel request)
         {

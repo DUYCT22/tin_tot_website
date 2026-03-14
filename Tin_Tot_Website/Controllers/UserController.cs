@@ -21,16 +21,26 @@ namespace Tin_Tot_Website.Controllers
         };
         private readonly IAuthService _authService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IRecaptchaValidationService _recaptchaValidationService;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IAuthService authService, IJwtTokenService jwtTokenService)
+        public UserController(
+            IAuthService authService,
+            IJwtTokenService jwtTokenService,
+            IRecaptchaValidationService recaptchaValidationService,
+            IConfiguration configuration)
         {
             _authService = authService;
             _jwtTokenService = jwtTokenService;
+            _recaptchaValidationService = recaptchaValidationService;
+            _configuration = configuration;
         }
         [HttpGet("~/Dang-nhap")]
         public IActionResult LoginPage()
         {
             ViewData["InitialMode"] = "login";
+            ViewData["RecaptchaSiteKey"] = _configuration["Recaptcha:SiteKey"] ?? string.Empty;
+            ViewData["RecaptchaEnabled"] = _recaptchaValidationService.IsEnabled;
             return View("~/Views/User/Login.cshtml");
         }
 
@@ -38,6 +48,8 @@ namespace Tin_Tot_Website.Controllers
         public IActionResult RegisterPage()
         {
             ViewData["InitialMode"] = "register";
+            ViewData["RecaptchaSiteKey"] = _configuration["Recaptcha:SiteKey"] ?? string.Empty;
+            ViewData["RecaptchaEnabled"] = _recaptchaValidationService.IsEnabled;
             return View("~/Views/User/Login.cshtml");
         }
 
@@ -49,6 +61,11 @@ namespace Tin_Tot_Website.Controllers
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
+            }
+            var isRecaptchaValid = await _recaptchaValidationService.ValidateAsync(dto.RecaptchaToken, HttpContext.Connection.RemoteIpAddress?.ToString());
+            if (!isRecaptchaValid)
+            {
+                return BadRequest(new { success = false, message = "Xác minh reCAPTCHA thất bại. Vui lòng thử lại." });
             }
             if (avatar is not null && avatar.Length > 0)
             {
@@ -108,19 +125,58 @@ namespace Tin_Tot_Website.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var user = await _authService.LoginAsync(dto);
-            if (user is null)
+            var isRecaptchaValid = await _recaptchaValidationService.ValidateAsync(dto.RecaptchaToken, HttpContext.Connection.RemoteIpAddress?.ToString());
+            if (!isRecaptchaValid)
             {
-                return Unauthorized(new { success = false, message = "Sai tài khoản hoặc mật khẩu" });
+                return BadRequest(new { success = false, message = "Xác minh reCAPTCHA thất bại. Vui lòng thử lại." });
             }
-            var token = _jwtTokenService.GenerateToken(user);
+            var result = await _authService.LoginAsync(dto);
+            if (!result.Success || result.User is null)
+            {
+                if (result.IsLocked)
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = result.Message,
+                        isLocked = true,
+                        retryAfterSeconds = result.RetryAfterSeconds
+                    });
+                }
+
+                return Unauthorized(new { success = false, message = result.Message });
+            }
+
+            var token = _jwtTokenService.GenerateToken(result.User);
             return Ok(new
             {
                 success = true,
-                message = "Đăng nhập thành công",
+                message = result.Message,
                 redirectUrl = Url.Action("Index", "Home"),
                 token,
-                user
+                user = result.User
+            });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult Me()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { success = false, message = "Phiên đăng nhập không hợp lệ." });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                user = new
+                {
+                    id = userId,
+                    loginName = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
+                    role = User.FindFirstValue(ClaimTypes.Role) ?? string.Empty
+                }
             });
         }
 

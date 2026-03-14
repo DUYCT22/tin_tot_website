@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using System.Security.Cryptography;
 using TinTot.Application.DTOs.Users;
 using TinTot.Application.Interfaces.Users;
 using TinTot.Domain.Entities;
@@ -10,6 +11,9 @@ namespace TinTot.Application.Services.Users
         private const int SaltSize = 16;
         private const int KeySize = 32;
         private const int Iterations = 100_000;
+        private const int MaxFailedLoginAttempts = 5;
+        private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan FailedAttemptsWindow = TimeSpan.FromMinutes(10);
         private static readonly HashAlgorithmName HashAlgorithm = HashAlgorithmName.SHA256;
         private static readonly HashSet<string> AllowedAvatarExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -17,11 +21,13 @@ namespace TinTot.Application.Services.Users
         };
         private readonly IUserRepository _userRepository;
         private readonly IAvatarStorageService _avatarStorageService;
+        private readonly IDistributedCache _cache;
 
-        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService)
+        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService, IDistributedCache cache)
         {
             _userRepository = userRepository;
             _avatarStorageService = avatarStorageService;
+            _cache = cache;
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto, AvatarUploadDto? avatarUpload = null)
@@ -83,21 +89,79 @@ namespace TinTot.Application.Services.Users
             };
         }
 
-        public async Task<UserDto?> LoginAsync(LoginDto dto)
+        public async Task<LoginResultDto> LoginAsync(LoginDto dto)
         {
             var loginName = dto.LoginName.Trim();
             var user = await _userRepository.GetByLoginNameAsync(loginName);
+            if (user is not null)
+            {
+                var unlockRemaining = await TryAutoUnlockAsync(user);
+                if (unlockRemaining.HasValue)
+                {
+                    return new LoginResultDto
+                    {
+                        Success = false,
+                        IsLocked = true,
+                        RetryAfterSeconds = unlockRemaining.Value,
+                        Message = $"Tài khoản đã bị khóa tạm thời. Vui lòng thử lại sau {unlockRemaining.Value} giây."
+                    };
+                }
+
+                if (!user.Status)
+                {
+                    return new LoginResultDto
+                    {
+                        Success = false,
+                        Message = "Tài khoản của bạn đang bị khóa."
+                    };
+                }
+            }
 
             if (user?.Password is null || !VerifyPassword(dto.Password, user.Password))
             {
-                return null;
+                if (user is not null)
+                {
+                    var failedCount = await IncrementFailedAttemptsAsync(user.Id);
+                    if (failedCount >= MaxFailedLoginAttempts)
+                    {
+                        user.Status = false;
+                        user.Online = false;
+                        await _userRepository.UpdateAsync(user);
+                        await _userRepository.SaveChangesAsync();
+
+                        await _cache.SetStringAsync(GetLockoutKey(user.Id), DateTime.UtcNow.Add(LockoutDuration).ToString("O"), new DistributedCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = LockoutDuration
+                        });
+
+                        return new LoginResultDto
+                        {
+                            Success = false,
+                            IsLocked = true,
+                            RetryAfterSeconds = (int)LockoutDuration.TotalSeconds,
+                            Message = "Bạn đã nhập sai mật khẩu quá 5 lần. Tài khoản bị khóa tạm thời trong 2 phút."
+                        };
+                    }
+                }
+
+                return new LoginResultDto
+                {
+                    Success = false,
+                    Message = "Sai tài khoản hoặc mật khẩu"
+                };
             }
 
             user.Online = true;
+            user.Status = true;
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            return ToUserDto(user);
+            return new LoginResultDto
+            {
+                Success = true,
+                User = ToUserDto(user),
+                Message = "Đăng nhập thành công"
+            };
         }
 
         public async Task<bool> LogoutAsync(int userId)
@@ -114,6 +178,56 @@ namespace TinTot.Application.Services.Users
 
             return true;
         }
+        private async Task<int?> TryAutoUnlockAsync(User user)
+        {
+            var lockoutRaw = await _cache.GetStringAsync(GetLockoutKey(user.Id));
+            if (string.IsNullOrWhiteSpace(lockoutRaw))
+            {
+                return null;
+            }
+
+            if (!DateTime.TryParse(lockoutRaw, null, System.Globalization.DateTimeStyles.RoundtripKind, out var lockoutUntil))
+            {
+                await ClearLockoutStateAsync(user.Id);
+                return null;
+            }
+
+            var remaining = lockoutUntil - DateTime.UtcNow;
+            if (remaining <= TimeSpan.Zero)
+            {
+                user.Status = true;
+                await _userRepository.UpdateAsync(user);
+                await _userRepository.SaveChangesAsync();
+                await ClearLockoutStateAsync(user.Id);
+                return null;
+            }
+
+            return Math.Max(1, (int)Math.Ceiling(remaining.TotalSeconds));
+        }
+
+        private async Task<int> IncrementFailedAttemptsAsync(int userId)
+        {
+            var key = GetFailedAttemptsKey(userId);
+            var currentRaw = await _cache.GetStringAsync(key);
+            var current = int.TryParse(currentRaw, out var parsed) ? parsed : 0;
+            current++;
+
+            await _cache.SetStringAsync(key, current.ToString(), new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = FailedAttemptsWindow
+            });
+
+            return current;
+        }
+
+        private async Task ClearLockoutStateAsync(int userId)
+        {
+            await _cache.RemoveAsync(GetFailedAttemptsKey(userId));
+            await _cache.RemoveAsync(GetLockoutKey(userId));
+        }
+
+        private static string GetFailedAttemptsKey(int userId) => $"auth:failed:{userId}";
+        private static string GetLockoutKey(int userId) => $"auth:lockout:{userId}";
         private static UserDto ToUserDto(User user)
         {
             return new UserDto
