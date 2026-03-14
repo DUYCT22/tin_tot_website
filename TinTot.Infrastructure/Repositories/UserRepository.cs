@@ -27,8 +27,9 @@ namespace TinTot.Infrastructure.Repositories
 
         public async Task<User?> GetByEmailAsync(string email)
         {
+            var normalizedEmail = email.Trim().ToLower();
             return await _context.Users
-                .FirstOrDefaultAsync(x => x.Email == email);
+                .FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail);
         }
         public async Task<List<string?>> GetAllAvatarUrlsAsync()
         {

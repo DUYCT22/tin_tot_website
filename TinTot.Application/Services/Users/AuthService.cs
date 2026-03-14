@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using TinTot.Application.DTOs.Users;
 using TinTot.Application.Interfaces.Users;
@@ -15,6 +17,8 @@ namespace TinTot.Application.Services.Users
         private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(2);
         private static readonly TimeSpan FailedAttemptsWindow = TimeSpan.FromMinutes(10);
         private static readonly HashAlgorithmName HashAlgorithm = HashAlgorithmName.SHA256;
+        private static readonly ConcurrentDictionary<int, int> InMemoryFailedAttempts = new();
+        private static readonly ConcurrentDictionary<int, DateTime> InMemoryLockoutUntil = new();
         private static readonly HashSet<string> AllowedAvatarExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".png", ".jpg", ".jpeg", ".jpge"
@@ -22,12 +26,14 @@ namespace TinTot.Application.Services.Users
         private readonly IUserRepository _userRepository;
         private readonly IAvatarStorageService _avatarStorageService;
         private readonly IDistributedCache _cache;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService, IDistributedCache cache)
+        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService, IDistributedCache cache, ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _avatarStorageService = avatarStorageService;
             _cache = cache;
+            _logger = logger;
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto, AvatarUploadDto? avatarUpload = null)
@@ -128,8 +134,9 @@ namespace TinTot.Application.Services.Users
                         user.Online = false;
                         await _userRepository.UpdateAsync(user);
                         await _userRepository.SaveChangesAsync();
-
-                        await _cache.SetStringAsync(GetLockoutKey(user.Id), DateTime.UtcNow.Add(LockoutDuration).ToString("O"), new DistributedCacheEntryOptions
+                        var lockoutUntil = DateTime.UtcNow.Add(LockoutDuration);
+                        InMemoryLockoutUntil[user.Id] = lockoutUntil;
+                        await SetCacheStringSafeAsync(GetLockoutKey(user.Id), DateTime.UtcNow.Add(LockoutDuration).ToString("O"), new DistributedCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow = LockoutDuration
                         });
@@ -155,7 +162,7 @@ namespace TinTot.Application.Services.Users
             user.Status = true;
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
-
+            await ClearLockoutStateAsync(user.Id);
             return new LoginResultDto
             {
                 Success = true,
@@ -180,19 +187,26 @@ namespace TinTot.Application.Services.Users
         }
         private async Task<int?> TryAutoUnlockAsync(User user)
         {
-            var lockoutRaw = await _cache.GetStringAsync(GetLockoutKey(user.Id));
-            if (string.IsNullOrWhiteSpace(lockoutRaw))
+            DateTime? lockoutUntil = null;
+            var lockoutRaw = await GetCacheStringSafeAsync(GetLockoutKey(user.Id));
+
+            if (!string.IsNullOrWhiteSpace(lockoutRaw)
+                && DateTime.TryParse(lockoutRaw, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsedLockoutUntil))
+            {
+                lockoutUntil = parsedLockoutUntil;
+                InMemoryLockoutUntil[user.Id] = parsedLockoutUntil;
+            }
+            else if (InMemoryLockoutUntil.TryGetValue(user.Id, out var inMemoryLockoutUntil))
+            {
+                lockoutUntil = inMemoryLockoutUntil;
+            }
+
+            if (!lockoutUntil.HasValue)
             {
                 return null;
             }
 
-            if (!DateTime.TryParse(lockoutRaw, null, System.Globalization.DateTimeStyles.RoundtripKind, out var lockoutUntil))
-            {
-                await ClearLockoutStateAsync(user.Id);
-                return null;
-            }
-
-            var remaining = lockoutUntil - DateTime.UtcNow;
+            var remaining = lockoutUntil.Value - DateTime.UtcNow;
             if (remaining <= TimeSpan.Zero)
             {
                 user.Status = true;
@@ -207,12 +221,10 @@ namespace TinTot.Application.Services.Users
 
         private async Task<int> IncrementFailedAttemptsAsync(int userId)
         {
+            var current = InMemoryFailedAttempts.AddOrUpdate(userId, 1, (_, value) => value + 1);
             var key = GetFailedAttemptsKey(userId);
-            var currentRaw = await _cache.GetStringAsync(key);
-            var current = int.TryParse(currentRaw, out var parsed) ? parsed : 0;
-            current++;
 
-            await _cache.SetStringAsync(key, current.ToString(), new DistributedCacheEntryOptions
+            await SetCacheStringSafeAsync(key, current.ToString(), new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = FailedAttemptsWindow
             });
@@ -222,8 +234,47 @@ namespace TinTot.Application.Services.Users
 
         private async Task ClearLockoutStateAsync(int userId)
         {
-            await _cache.RemoveAsync(GetFailedAttemptsKey(userId));
-            await _cache.RemoveAsync(GetLockoutKey(userId));
+            InMemoryFailedAttempts.TryRemove(userId, out _);
+            InMemoryLockoutUntil.TryRemove(userId, out _);
+            await RemoveCacheKeySafeAsync(GetFailedAttemptsKey(userId));
+            await RemoveCacheKeySafeAsync(GetLockoutKey(userId));
+        }
+
+        private async Task<string?> GetCacheStringSafeAsync(string key)
+        {
+            try
+            {
+                return await _cache.GetStringAsync(key);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cannot read cache key {CacheKey}. Continue without lockout cache.", key);
+                return null;
+            }
+        }
+
+        private async Task SetCacheStringSafeAsync(string key, string value, DistributedCacheEntryOptions options)
+        {
+            try
+            {
+                await _cache.SetStringAsync(key, value, options);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cannot write cache key {CacheKey}. Continue without lockout cache.", key);
+            }
+        }
+
+        private async Task RemoveCacheKeySafeAsync(string key)
+        {
+            try
+            {
+                await _cache.RemoveAsync(key);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cannot remove cache key {CacheKey}. Continue without lockout cache.", key);
+            }
         }
 
         private static string GetFailedAttemptsKey(int userId) => $"auth:failed:{userId}";

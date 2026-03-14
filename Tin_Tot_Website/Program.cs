@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.RateLimiting;
+using StackExchange.Redis;
 using Tin_Tot_Website.Services;
 using Tin_Tot_Website.Services.Messages;
 using Tin_Tot_Website.Services.Notifications;
@@ -127,10 +128,22 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("BannerManagePolicy", policy => policy.RequireRole("1", "2"));
     options.AddPolicy("CategoryManagePolicy", policy => policy.RequireRole("1", "3"));
 });
-builder.Services.AddStackExchangeRedisCache(options =>
+var redisConnection = builder.Configuration["Redis:Connection"];
+if (string.IsNullOrWhiteSpace(redisConnection))
 {
-    options.Configuration = builder.Configuration["Redis:Connection"];
-});
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        var redisOptions = ConfigurationOptions.Parse(redisConnection);
+        redisOptions.AbortOnConnectFail = false;
+        redisOptions.ConnectTimeout = 1000;
+        redisOptions.AsyncTimeout = 1000;
+        options.ConfigurationOptions = redisOptions;
+    });
+}
 
 builder.Services.AddRateLimiter(options =>
 {
