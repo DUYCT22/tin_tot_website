@@ -87,7 +87,6 @@ builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IContactEmailSender, SmtpContactEmailSender>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IEntityKeyService, EntityKeyService>();
-builder.Services.AddHttpClient<IRecaptchaValidationService, RecaptchaValidationService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Thiếu cấu hình Jwt:Key");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TinTot";

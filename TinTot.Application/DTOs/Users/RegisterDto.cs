@@ -31,6 +31,5 @@ namespace TinTot.Application.DTOs.Users
         [StringLength(100, MinimumLength = 8)]
         public string Password { get; set; } = default!;
 
-        public string? RecaptchaToken { get; set; }
     }
 }

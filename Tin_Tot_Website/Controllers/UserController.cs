@@ -21,26 +21,18 @@ namespace Tin_Tot_Website.Controllers
         };
         private readonly IAuthService _authService;
         private readonly IJwtTokenService _jwtTokenService;
-        private readonly IRecaptchaValidationService _recaptchaValidationService;
-        private readonly IConfiguration _configuration;
 
         public UserController(
             IAuthService authService,
-            IJwtTokenService jwtTokenService,
-            IRecaptchaValidationService recaptchaValidationService,
-            IConfiguration configuration)
+            IJwtTokenService jwtTokenService)
         {
             _authService = authService;
             _jwtTokenService = jwtTokenService;
-            _recaptchaValidationService = recaptchaValidationService;
-            _configuration = configuration;
         }
         [HttpGet("~/Dang-nhap")]
         public IActionResult LoginPage()
         {
             ViewData["InitialMode"] = "login";
-            ViewData["RecaptchaSiteKey"] = _configuration["Recaptcha:SiteKey"] ?? string.Empty;
-            ViewData["RecaptchaEnabled"] = _recaptchaValidationService.IsEnabled;
             return View("~/Views/User/Login.cshtml");
         }
 
@@ -48,8 +40,6 @@ namespace Tin_Tot_Website.Controllers
         public IActionResult RegisterPage()
         {
             ViewData["InitialMode"] = "register";
-            ViewData["RecaptchaSiteKey"] = _configuration["Recaptcha:SiteKey"] ?? string.Empty;
-            ViewData["RecaptchaEnabled"] = _recaptchaValidationService.IsEnabled;
             return View("~/Views/User/Login.cshtml");
         }
 
@@ -61,11 +51,6 @@ namespace Tin_Tot_Website.Controllers
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
-            }
-            var isRecaptchaValid = await _recaptchaValidationService.ValidateAsync(dto.RecaptchaToken, HttpContext.Connection.RemoteIpAddress?.ToString());
-            if (!isRecaptchaValid)
-            {
-                return BadRequest(new { success = false, message = "Xác minh reCAPTCHA thất bại. Vui lòng thử lại." });
             }
             if (avatar is not null && avatar.Length > 0)
             {
@@ -123,12 +108,6 @@ namespace Tin_Tot_Website.Controllers
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
-            }
-
-            var isRecaptchaValid = await _recaptchaValidationService.ValidateAsync(dto.RecaptchaToken, HttpContext.Connection.RemoteIpAddress?.ToString());
-            if (!isRecaptchaValid)
-            {
-                return BadRequest(new { success = false, message = "Xác minh reCAPTCHA thất bại. Vui lòng thử lại." });
             }
             var result = await _authService.LoginAsync(dto);
             if (!result.Success || result.User is null)
