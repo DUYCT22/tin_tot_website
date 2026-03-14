@@ -34,12 +34,20 @@
         .auth-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            align-items: center; /* căn giữa theo chiều dọc cho login panel */
+            min-height: 80vh; /* chiều cao khung, có thể chỉnh 100vh nếu muốn chiếm toàn màn hình */
         }
 
         .auth-panel {
             padding: 2rem;
             background: #fff;
         }
+
+            /* Panel đăng ký (panel thứ 2) */
+            .auth-panel:nth-child(2) {
+                max-height: 600px; /* giới hạn chiều cao cố định */
+                overflow-y: auto; /* chỉ cuộn bên trong form đăng ký */
+            }
 
         .auth-overlay {
             position: absolute;
@@ -58,7 +66,7 @@
             text-align: center;
             z-index: 5;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-            border-radius: 0 20px 20px 0; /* bo góc mềm mại */
+            border-radius: 0 20px 20px 0;
         }
 
         .auth-shell.login-mode .auth-overlay {
@@ -95,8 +103,6 @@
                 transform: scale(1.05);
             }
 
-       
-
         .input-icon {
             position: absolute;
             top: 50%;
@@ -121,7 +127,11 @@
             }
 
             .auth-grid {
-                grid-template-columns: 1fr;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                min-height: 100%;
             }
 
             .auth-overlay {
@@ -148,12 +158,12 @@
                     </div>
                     <form id="loginForm">
                         <div class="mb-3">
-                            <label class="form-label">Tên đăng nhập</label>
+                            <label class="form-label">Tên đăng nhập <small class="text-danger">*</small></label>
                             <input id="loginName" class="form-control form-control-lg" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
+                            <label class="form-label">Mật khẩu <small class="text-danger">*</small></label>
                             <div class="position-relative">
                                 <input id="loginPassword" type="password" class="form-control form-control-lg pe-5" required>
                                 <i class="fa-regular fa-eye input-icon toggle-password" data-target="#loginPassword"></i>
@@ -179,36 +189,36 @@
 
                         <div class="row g-3">
 
-                            <div class="col-md-6">
-                                <label class="form-label">Tên đăng nhập</label>
+                            <div class="col-12">
+                                <label class="form-label">Tên đăng nhập <small class="text-danger">*</small></label>
                                 <input name="loginName" class="form-control" minlength="3" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Họ tên</label>
+                            <div class="col-12">
+                                <label class="form-label">Họ tên <small class="text-danger">*</small></label>
                                 <input name="fullName" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
+                            <div class="col-12">
+                                <label class="form-label">Email <small class="text-danger">Vui lòng nhập đúng vì sử dụng trong thao tác bảo mật.</small></label>
                                 <input name="email" type="email" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Số điện thoại</label>
+                            <div class="col-12">
+                                <label class="form-label">Số điện thoại <small class="text-danger">*</small></label>
                                 <input name="phone" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Mật khẩu</label>
+                            <div class="col-12">
+                                <label class="form-label">Mật khẩu <small class="text-danger">*</small></label>
                                 <div class="position-relative">
                                     <input id="registerPassword" name="password" type="password" class="form-control pe-5" minlength="8" required>
                                     <i class="fa-regular fa-eye input-icon toggle-password" data-target="#registerPassword"></i>
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Xác nhận mật khẩu</label>
+                            <div class="col-12">
+                                <label class="form-label">Xác nhận mật khẩu <small class="text-danger">*</small></label>
                                 <div class="position-relative">
                                     <input id="confirmPassword" type="password" class="form-control pe-5" minlength="8" required>
                                     <i class="fa-regular fa-eye input-icon toggle-password" data-target="#confirmPassword"></i>
@@ -223,6 +233,7 @@
                             </div>
 
                         </div>
+
 
                         <button id="registerButton" class="btn btn-lg w-100 mt-4" style=" background: linear-gradient(160deg,#FFCC33,#FFCC33); color: #fff;">
                             Đăng ký

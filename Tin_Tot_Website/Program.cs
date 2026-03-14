@@ -154,12 +154,13 @@ builder.Services.AddRateLimiter(options =>
             ?? context.Connection.RemoteIpAddress?.ToString()
             ?? "anonymous";
 
-        return RateLimitPartition.GetFixedWindowLimiter(
+        return RateLimitPartition.GetSlidingWindowLimiter(
             partitionKey: userId,
-            factory: _ => new FixedWindowRateLimiterOptions
+            factory: _ => new SlidingWindowRateLimiterOptions
             {
                 PermitLimit = 4,
-                Window = TimeSpan.FromMinutes(1),
+                Window = TimeSpan.FromSeconds(30),
+                SegmentsPerWindow = 3,
                 QueueLimit = 0,
                 AutoReplenishment = true
             });
@@ -169,7 +170,7 @@ builder.Services.AddRateLimiter(options =>
     {
         context.HttpContext.Response.ContentType = "application/json";
         await context.HttpContext.Response.WriteAsync(
-            "{\"success\":false,\"message\":\"Bạn gửi tin nhắn quá nhanh. Vui lòng thử lại sau.\"}",
+            "{\"success\":false,\"message\":\"Bạn gửi tin nhắn quá nhanh. Vui lòng thử lại sau 30 giây.\"}",
             cancellationToken);
     };
 });
