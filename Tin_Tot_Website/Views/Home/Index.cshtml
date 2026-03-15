@@ -47,10 +47,18 @@
             @foreach (var category in Model.Categories)
             {
             
-                <a class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3 text-center d-flex flex-column align-items-center" href="#" style="height:fit-content; text-decoration:none">
-                    <img src="@(category.Image ?? "/favicon.ico")" class="mb-2 shadow-sm hover-zoom" style="width: 100px; height: 100px; object-fit:cover; border-radius: 10px;" alt="@category.Name" />
-                            <p class="card-text text-dark text-center fw-semibold mb-0">@category.Name</p>
-                    </a>
+            <a class="col-6 col-sm-4 col-md-3 col-lg-2 mb-3 text-center d-flex flex-column align-items-center"
+               asp-controller="Home"
+               asp-action="AllListings"
+               asp-route-categoryId="@category.Id"
+               style="height:fit-content; text-decoration:none">
+                <img src="@(category.Image ?? "/favicon.ico")"
+                     class="mb-2 shadow-sm hover-zoom"
+                     style="width: 100px; height: 100px; object-fit:cover; border-radius: 10px;"
+                     alt="@category.Name" />
+                <p class="card-text text-dark text-center fw-semibold mb-0">@category.Name</p>
+            </a>
+
             }
         </div>
     </section>

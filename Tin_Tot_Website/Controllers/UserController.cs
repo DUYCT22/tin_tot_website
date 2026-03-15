@@ -136,7 +136,67 @@ namespace Tin_Tot_Website.Controllers
                 user = result.User
             });
         }
+        [AllowAnonymous]
+        [HttpPost("forgot-password/send-code")]
+        public async Task<IActionResult> SendForgotPasswordCode([FromBody] ForgotPasswordRequestDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
 
+            try
+            {
+                var sent = await _authService.RequestPasswordResetCodeAsync(dto);
+                if (!sent)
+                {
+                    return NotFound(new { success = false, message = "Email không tồn tại trong hệ thống." });
+                }
+
+                return Ok(new { success = true, message = "Mã xác nhận đã được gửi về email của bạn." });
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { success = false, message = "Không thể gửi mã xác nhận. Vui lòng thử lại." });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("forgot-password/verify-code")]
+        public async Task<IActionResult> VerifyForgotPasswordCode([FromBody] VerifyForgotPasswordCodeDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var verified = await _authService.VerifyPasswordResetCodeAsync(dto);
+            if (!verified)
+            {
+                return BadRequest(new { success = false, message = "Mã xác nhận không hợp lệ hoặc đã hết hạn." });
+            }
+
+            return Ok(new { success = true, message = "Xác nhận mã thành công." });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("forgot-password/reset")]
+        public async Task<IActionResult> ResetForgotPassword([FromBody] ResetForgotPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var result = await _authService.ResetPasswordByCodeAsync(dto);
+            if (!result.Success)
+            {
+                return BadRequest(new { success = false, message = result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
+        }
         [Authorize]
         [HttpGet("me")]
         public IActionResult Me()

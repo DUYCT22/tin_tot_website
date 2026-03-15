@@ -15,13 +15,13 @@
 </style>
 <div class="row g-3">
     <div class="col-12 col-lg-4">
-        <div class="card shadow-sm h-100">
+        <div class="shadow-sm h-100">
             <div class="card-header fw-semibold">Cuộc trò chuyện</div>
             <div id="conversationList" class="list-group list-group-flush" style="max-height:70vh; overflow:auto;"></div>
         </div>
     </div>
     <div class="col-12 col-lg-8">
-        <div class="card shadow-sm">
+        <div class="shadow-sm">
             <div class="card-header" id="chatHeader">Chọn người để bắt đầu trò chuyện</div>
             <div class="card-body" id="chatBody" style="height:60vh; overflow:auto; background:#f8f9fa;"></div>
             <div class="card-footer">
@@ -102,7 +102,7 @@
                     el.type = 'button';
                     el.className = 'list-group-item list-group-item-action';
                     el.dataset.receiverKey = x.receiverKey;
-                    el.dataset.receiverName = x.displayName;
+                    el.dataset.receiverName = x.displayName
                     el.innerHTML = `<div class='fw-semibold'>${x.displayName}</div><small class='text-muted'>${x.lastMessage}</small>`;
                     el.onclick = () => selectConversation(x.receiverKey, x.displayName);
                     conversationList.appendChild(el);

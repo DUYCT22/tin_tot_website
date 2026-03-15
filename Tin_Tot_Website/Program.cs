@@ -70,10 +70,11 @@ builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IContactService, ContactService>();
-
-builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
+builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
@@ -84,7 +85,8 @@ builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRe
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageRealtimePublisher, SignalRMessageRealtimePublisher>();
 builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
-builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
+builder.Services.AddSingleton<IPasswordResetRepository, InMemoryPasswordResetRepository>();
+builder.Services.AddScoped<IPasswordResetEmailSender, SmtpPasswordResetEmailSender>();
 builder.Services.AddScoped<IContactEmailSender, SmtpContactEmailSender>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IEntityKeyService, EntityKeyService>();

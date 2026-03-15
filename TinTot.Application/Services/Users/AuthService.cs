@@ -24,10 +24,19 @@ namespace TinTot.Application.Services.Users
         private readonly IUserRepository _userRepository;
         private readonly IAvatarStorageService _avatarStorageService;
 
-        public AuthService(IUserRepository userRepository, IAvatarStorageService avatarStorageService)
+        private readonly IPasswordResetRepository _passwordResetRepository;
+        private readonly IPasswordResetEmailSender _passwordResetEmailSender;
+
+        public AuthService(
+            IUserRepository userRepository,
+            IAvatarStorageService avatarStorageService,
+            IPasswordResetRepository passwordResetRepository,
+            IPasswordResetEmailSender passwordResetEmailSender)
         {
             _userRepository = userRepository;
             _avatarStorageService = avatarStorageService;
+            _passwordResetRepository = passwordResetRepository;
+            _passwordResetEmailSender = passwordResetEmailSender;
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto, AvatarUploadDto? avatarUpload = null)
@@ -196,6 +205,85 @@ namespace TinTot.Application.Services.Users
             await _userRepository.SaveChangesAsync();
 
             return true;
+        }
+        public async Task<bool> RequestPasswordResetCodeAsync(ForgotPasswordRequestDto dto)
+        {
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail);
+            if (user is null)
+            {
+                return false;
+            }
+
+            var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            var passwordResetCode = new PasswordResetCode
+            {
+                Email = normalizedEmail,
+                Code = code,
+                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5),
+                IsVerified = false
+            };
+
+            await _passwordResetRepository.UpsertAsync(passwordResetCode);
+            await _passwordResetEmailSender.SendResetCodeAsync(normalizedEmail, code);
+
+            return true;
+        }
+
+        public async Task<bool> VerifyPasswordResetCodeAsync(VerifyForgotPasswordCodeDto dto)
+        {
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var passwordResetCode = await _passwordResetRepository.GetByEmailAsync(normalizedEmail);
+            if (passwordResetCode is null)
+            {
+                return false;
+            }
+
+            var isValidCode = passwordResetCode.Code == dto.Code
+                && passwordResetCode.ExpiresAtUtc >= DateTime.UtcNow;
+            if (!isValidCode)
+            {
+                return false;
+            }
+
+            passwordResetCode.IsVerified = true;
+            await _passwordResetRepository.UpsertAsync(passwordResetCode);
+            return true;
+        }
+
+        public async Task<(bool Success, string Message)> ResetPasswordByCodeAsync(ResetForgotPasswordDto dto)
+        {
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            if (dto.NewPassword != dto.ConfirmPassword)
+            {
+                return (false, "Mật khẩu xác nhận không khớp.");
+            }
+
+            var passwordResetCode = await _passwordResetRepository.GetByEmailAsync(normalizedEmail);
+            if (passwordResetCode is null
+                || !passwordResetCode.IsVerified
+                || passwordResetCode.ExpiresAtUtc < DateTime.UtcNow)
+            {
+                return (false, "Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+            }
+
+            var user = await _userRepository.GetByEmailAsync(normalizedEmail);
+            if (user is null)
+            {
+                return (false, "Không tìm thấy người dùng.");
+            }
+
+            if (user.Password is not null && VerifyPassword(dto.NewPassword, user.Password))
+            {
+                return (false, "Không được sử dụng mật khẩu cũ.");
+            }
+
+            user.Password = HashPassword(dto.NewPassword);
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+            await _passwordResetRepository.RemoveAsync(normalizedEmail);
+
+            return (true, "Đặt lại mật khẩu thành công.");
         }
         private async Task<int?> TryAutoUnlockAsync(User user)
         {
