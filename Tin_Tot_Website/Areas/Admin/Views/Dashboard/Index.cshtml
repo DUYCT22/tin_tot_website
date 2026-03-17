@@ -1,0 +1,67 @@
+﻿@model Tin_Tot_Website.Areas.Admin.Models.AdminDashboardPageViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var role = Model.Role;
+    bool isAdmin = role == 1;
+    bool isListing = role == 2;
+    bool isUser = role == 3;
+}
+
+<h4 class="mb-3">Dashboard quản trị</h4>
+<div id="widgetGrid" class="row g-3">
+    @if (isAdmin || isListing)
+    {
+        <div class="col-md-3"><div class="widget-card"><h6>Tổng số bài đăng</h6><p>@Model.Dashboard.TotalListings</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>Bài đang hiển thị</h6><p>@Model.Dashboard.TotalActiveListings</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>Bài đã bán</h6><p>@Model.Dashboard.TotalSoldListings</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>Bài chờ duyệt</h6><p>@Model.Dashboard.TotalPendingListings</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>Tăng trưởng bài đăng/tuần</h6><p>@Model.Dashboard.ListingGrowthPercent%</p></div></div>
+    }
+
+    @if (isAdmin || isUser)
+    {
+        <div class="col-md-3"><div class="widget-card"><h6>Tăng trưởng user mới/tuần</h6><p>@Model.Dashboard.NewUserGrowthPercent%</p></div></div>
+    }
+
+    @if (isAdmin)
+    {
+        <div class="col-md-3"><div class="widget-card"><h6>Danh mục con đang hiển thị</h6><p>@Model.Dashboard.VisibleLeafCategories</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>Banner đang hiển thị</h6><p>@Model.Dashboard.VisibleBanners</p></div></div>
+    }
+
+    @if (isUser)
+    {
+        <div class="col-md-3"><div class="widget-card"><h6>User thường hoạt động</h6><p>@Model.Dashboard.ActiveMemberUsers</p></div></div>
+        <div class="col-md-3"><div class="widget-card"><h6>User thường không hoạt động</h6><p>@Model.Dashboard.InactiveMemberUsers</p></div></div>
+    }
+
+    @if (isAdmin || isListing)
+    {
+        <div class="col-lg-4"><div class="widget-card"><h6>Biểu đồ tròn bài đăng</h6><canvas id="pieChart"></canvas></div></div>
+        <div class="col-lg-4"><div class="widget-card"><h6>Bài đăng theo danh mục con</h6><canvas id="barChart"></canvas></div></div>
+        <div class="col-lg-4"><div class="widget-card"><h6>Tăng trưởng bài đăng theo tháng</h6><canvas id="lineChart"></canvas></div></div>
+    }
+
+    @if (isAdmin || isListing)
+    {
+        <div class="col-md-6"><div class="widget-card"><h6>Tin nhắn nhanh</h6><p>@(isAdmin ? "Nhắn với ListingManagePolicy" : "Nhắn với AdminOnlyPolicy")</p></div></div>
+        <div class="col-md-6"><div class="widget-card"><h6>Tin nhắn nhanh</h6><p>Nhắn với UserManagePolicy</p></div></div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        const pieData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard.ListingDistribution));
+        const barData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard.ListingsByCategory));
+        const lineData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Dashboard.MonthlyListingGrowth));
+
+        if (document.getElementById('pieChart')) {
+            new Chart(document.getElementById('pieChart'), { type: 'pie', data: { labels: pieData.map(x => x.label), datasets: [{ data: pieData.map(x => x.count) }] } });
+            new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: barData.map(x => x.categoryName), datasets: [{ data: barData.map(x => x.count) }] } });
+            new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: lineData.map(x => x.monthLabel), datasets: [{ data: lineData.map(x => x.count), fill: false }] } });
+        }
+        new Sortable(document.getElementById('widgetGrid'), { animation: 120 });
+    </script>
+}

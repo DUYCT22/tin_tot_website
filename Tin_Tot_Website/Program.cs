@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Text;
 using System.Threading.RateLimiting;
-using StackExchange.Redis;
 using Tin_Tot_Website.Services;
 using Tin_Tot_Website.Services.Messages;
 using Tin_Tot_Website.Services.Notifications;
+using TinTot.Application.Interfaces.Admin;
 using TinTot.Application.Interfaces.Banners;
 using TinTot.Application.Interfaces.Categories;
 using TinTot.Application.Interfaces.Contact;
@@ -18,6 +19,7 @@ using TinTot.Application.Interfaces.Messages;
 using TinTot.Application.Interfaces.Notifications;
 using TinTot.Application.Interfaces.Users;
 using TinTot.Application.Services;
+using TinTot.Application.Services.Admin;
 using TinTot.Application.Services.Contact;
 using TinTot.Application.Services.Home;
 using TinTot.Application.Services.Listings;
@@ -26,6 +28,7 @@ using TinTot.Application.Services.Notifications;
 using TinTot.Application.Services.Users;
 using TinTot.Infrastructure.Data;
 using TinTot.Infrastructure.Repositories;
+using TinTot.Infrastructure.Repositories.Admin;
 using TinTot.Infrastructure.Repositories.Home;
 using TinTot.Infrastructure.Repositories.Messages;
 using TinTot.Infrastructure.Services;
@@ -68,15 +71,19 @@ builder.Services.AddScoped<IListingService, ListingService>();
 builder.Services.AddScoped<IListingImageService, ListingImageService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 
 builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
+builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
 builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
@@ -129,6 +136,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("1"));
     options.AddPolicy("ListingManagePolicy", policy => policy.RequireRole("1", "2"));
     options.AddPolicy("UserManagePolicy", policy => policy.RequireRole("1", "3"));
+    options.AddPolicy("BannerManagePolicy", policy => policy.RequireRole("1"));
+    options.AddPolicy("CategoryManagePolicy", policy => policy.RequireRole("1"));
+    options.AddPolicy("AdminPortalAccessPolicy", policy => policy.RequireRole("1", "2", "3"));
 });
 var redisConnection = builder.Configuration["Redis:Connection"];
 if (string.IsNullOrWhiteSpace(redisConnection))
@@ -212,6 +222,9 @@ app.MapControllerRoute(
 //    name: "FriendlyProfile",
 //    pattern: "Trang-ca-nhan",
 //    defaults: new { controller = "MemberListing", action = "Profile" });
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
