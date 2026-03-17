@@ -17,6 +17,8 @@ namespace TinTot.Application.Services.Users
         private static readonly HashAlgorithmName HashAlgorithm = HashAlgorithmName.SHA256;
         private static readonly ConcurrentDictionary<int, FailedAttemptState> InMemoryFailedAttempts = new();
         private static readonly ConcurrentDictionary<int, DateTime> InMemoryLockoutUntil = new();
+        private static readonly ConcurrentDictionary<string, PasswordResetCode> InMemoryRegisterVerificationCodes = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly ConcurrentDictionary<string, DateTime> InMemoryRegisterCodeCooldownUntil = new(StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<string> AllowedAvatarExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".png", ".jpg", ".jpeg", ".jpge"
@@ -45,6 +47,11 @@ namespace TinTot.Application.Services.Users
             var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
             var normalizedPhone = dto.Phone.Trim();
 
+            var isEmailVerified = await IsRegisterEmailVerifiedAsync(normalizedEmail);
+            if (!isEmailVerified)
+            {
+                throw new InvalidOperationException("Vui lòng xác thực email trước khi đăng ký.");
+            }
             var existingByLoginName = await _userRepository.GetByLoginNameAsync(normalizedLoginName);
             if (existingByLoginName != null)
             {
@@ -105,7 +112,8 @@ namespace TinTot.Application.Services.Users
 
                 throw;
             }
-
+            InMemoryRegisterVerificationCodes.TryRemove(normalizedEmail, out _);
+            InMemoryRegisterCodeCooldownUntil.TryRemove(normalizedEmail, out _);
             return new UserDto
             {
                 FullName = user.FullName,
@@ -284,6 +292,70 @@ namespace TinTot.Application.Services.Users
             await _passwordResetRepository.RemoveAsync(normalizedEmail);
 
             return (true, "Đặt lại mật khẩu thành công.");
+        }
+        public async Task<(bool Success, string Message, int? RetryAfterSeconds)> RequestRegisterVerificationCodeAsync(ForgotPasswordRequestDto dto)
+        {
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var existingByEmail = await _userRepository.GetByEmailAsync(normalizedEmail);
+            if (existingByEmail is not null)
+            {
+                return (false, "Email đã tồn tại trong hệ thống.", null);
+            }
+
+            if (InMemoryRegisterCodeCooldownUntil.TryGetValue(normalizedEmail, out var cooldownUntil)
+                && cooldownUntil > DateTime.UtcNow)
+            {
+                var remaining = Math.Max(1, (int)Math.Ceiling((cooldownUntil - DateTime.UtcNow).TotalSeconds));
+                return (false, $"Vui lòng chờ {remaining}s để gửi lại mã xác thực.", remaining);
+            }
+
+            var code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            InMemoryRegisterVerificationCodes[normalizedEmail] = new PasswordResetCode
+            {
+                Email = normalizedEmail,
+                Code = code,
+                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5),
+                IsVerified = false
+            };
+            InMemoryRegisterCodeCooldownUntil[normalizedEmail] = DateTime.UtcNow.AddSeconds(30);
+
+            await _passwordResetEmailSender.SendResetCodeAsync(normalizedEmail, code);
+            return (true, "Mã xác thực đã được gửi về email của bạn.", 30);
+        }
+
+        public Task<bool> VerifyRegisterVerificationCodeAsync(VerifyForgotPasswordCodeDto dto)
+        {
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            if (!InMemoryRegisterVerificationCodes.TryGetValue(normalizedEmail, out var registerVerificationCode))
+            {
+                return Task.FromResult(false);
+            }
+
+            var isValidCode = registerVerificationCode.Code == dto.Code
+                && registerVerificationCode.ExpiresAtUtc >= DateTime.UtcNow;
+
+            if (!isValidCode)
+            {
+                return Task.FromResult(false);
+            }
+
+            registerVerificationCode.IsVerified = true;
+            InMemoryRegisterVerificationCodes[normalizedEmail] = registerVerificationCode;
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> IsRegisterEmailVerifiedAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToLowerInvariant();
+            if (!InMemoryRegisterVerificationCodes.TryGetValue(normalizedEmail, out var registerVerificationCode))
+            {
+                return Task.FromResult(false);
+            }
+
+            var isVerified = registerVerificationCode.IsVerified
+                && registerVerificationCode.ExpiresAtUtc >= DateTime.UtcNow;
+
+            return Task.FromResult(isVerified);
         }
         private async Task<int?> TryAutoUnlockAsync(User user)
         {

@@ -137,6 +137,49 @@ namespace Tin_Tot_Website.Controllers
             });
         }
         [AllowAnonymous]
+        [HttpPost("register/send-code")]
+        public async Task<IActionResult> SendRegisterVerificationCode([FromBody] ForgotPasswordRequestDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.RequestRegisterVerificationCodeAsync(dto);
+                if (!result.Success)
+                {
+                    return BadRequest(new { success = false, message = result.Message, retryAfterSeconds = result.RetryAfterSeconds });
+                }
+
+                return Ok(new { success = true, message = result.Message, retryAfterSeconds = result.RetryAfterSeconds });
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { success = false, message = "Không thể gửi mã xác thực. Vui lòng thử lại." });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register/verify-code")]
+        public async Task<IActionResult> VerifyRegisterVerificationCode([FromBody] VerifyForgotPasswordCodeDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var verified = await _authService.VerifyRegisterVerificationCodeAsync(dto);
+            if (!verified)
+            {
+                return BadRequest(new { success = false, message = "Mã xác thực không hợp lệ hoặc đã hết hạn." });
+            }
+
+            return Ok(new { success = true, message = "Xác thực email thành công." });
+        }
+        [AllowAnonymous]
         [HttpPost("forgot-password/send-code")]
         public async Task<IActionResult> SendForgotPasswordCode([FromBody] ForgotPasswordRequestDto dto)
         {

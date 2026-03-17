@@ -34,8 +34,8 @@
         .auth-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            align-items: center; /* căn giữa theo chiều dọc cho login panel */
-            min-height: 80vh; /* chiều cao khung, có thể chỉnh 100vh nếu muốn chiếm toàn màn hình */
+            align-items: center;
+            min-height: 80vh;
         }
 
         .auth-panel {
@@ -43,10 +43,9 @@
             background: #fff;
         }
 
-            /* Panel đăng ký (panel thứ 2) */
             .auth-panel:nth-child(2) {
-                max-height: 600px; /* giới hạn chiều cao cố định */
-                overflow-y: auto; /* chỉ cuộn bên trong form đăng ký */
+                max-height: 600px;
+                overflow-y: auto;
             }
 
         .auth-overlay {
@@ -62,7 +61,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center; /* căn giữa nội dung */
+            align-items: center;
             text-align: center;
             z-index: 5;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
@@ -210,7 +209,12 @@
 
                             <div class="col-12">
                                 <label class="form-label">Email <small class="text-danger">Vui lòng nhập đúng vì sử dụng trong thao tác bảo mật.</small></label>
-                                <input name="email" type="email" class="form-control" required>
+                                <div class="input-group">
+                                    <input id="registerEmail" name="email" type="email" class="form-control" required>
+                                    <button type="button" class="btn btn-outline-warning" id="sendRegisterCodeButton">Xác thực</button>
+                                </div>
+                                <small id="registerEmailVerifyStatus" class="d-block mt-1 text-muted">Email chưa được xác thực.</small>
+                                <div class="text-muted mt-1 d-none" id="sendRegisterCodeCountdown"></div>
                             </div>
 
                             <div class="col-12">
@@ -375,7 +379,149 @@
               avatarPreview.src = URL.createObjectURL(file);
               avatarPreview.style.display = "block";
             };
+            const registerForm = document.getElementById("registerForm");
+            const registerEmailInput = document.getElementById("registerEmail");
+            const sendRegisterCodeButton = document.getElementById("sendRegisterCodeButton");
+            const sendRegisterCodeCountdown = document.getElementById("sendRegisterCodeCountdown");
+            const registerEmailVerifyStatus = document.getElementById("registerEmailVerifyStatus");
+            let registerCodeVerifiedEmail = "";
+            let registerCodeInterval = null;
 
+            function setRegisterEmailVerifiedState(isVerified, message) {
+              registerEmailVerifyStatus.textContent = message;
+              registerEmailVerifyStatus.classList.toggle("text-success", isVerified);
+              registerEmailVerifyStatus.classList.toggle("text-muted", !isVerified);
+            }
+
+            function stopRegisterCountdown() {
+              if (registerCodeInterval) {
+                clearInterval(registerCodeInterval);
+                registerCodeInterval = null;
+              }
+            }
+
+            function startRegisterCountdown(seconds = 30) {
+              stopRegisterCountdown();
+              let remaining = seconds;
+              sendRegisterCodeButton.disabled = true;
+              sendRegisterCodeCountdown.classList.remove("d-none");
+              sendRegisterCodeCountdown.textContent = `Bạn có thể gửi lại mã sau ${remaining}s`;
+
+              registerCodeInterval = setInterval(() => {
+                remaining -= 1;
+                if (remaining <= 0) {
+                  stopRegisterCountdown();
+                  sendRegisterCodeButton.disabled = false;
+                  sendRegisterCodeCountdown.classList.add("d-none");
+                  sendRegisterCodeCountdown.textContent = "";
+                  return;
+                }
+
+                sendRegisterCodeCountdown.textContent = `Bạn có thể gửi lại mã sau ${remaining}s`;
+              }, 1000);
+            }
+
+            registerEmailInput.addEventListener("input", () => {
+              registerCodeVerifiedEmail = "";
+              setRegisterEmailVerifiedState(false, "Email chưa được xác thực.");
+            });
+
+            function buildCodeInputHtml() {
+              return `<div class="d-flex justify-content-between gap-2 mt-2">${Array.from({ length: 6 }).map(() =>
+                '<input type="text" inputmode="numeric" maxlength="1" class="form-control text-center register-verify-code-input" style="width:44px;height:44px;font-size:1.1rem;font-weight:600;" />'
+              ).join("")}</div>`;
+            }
+
+            async function openRegisterCodePopup(email) {
+              const { isConfirmed, value } = await Swal.fire({
+                title: "Nhập mã xác thực",
+                html: `<p class="text-muted mb-2">Vui lòng nhập 6 số đã gửi đến <b>${email}</b>.</p>${buildCodeInputHtml()}`,
+                confirmButtonText: "Xác thực",
+                showCancelButton: true,
+                cancelButtonText: "Hủy",
+                didOpen: () => {
+                  const inputs = Array.from(document.querySelectorAll(".register-verify-code-input"));
+                  if (inputs.length > 0) {
+                    inputs[0].focus();
+                  }
+
+                  inputs.forEach((input, index) => {
+                    input.addEventListener("input", () => {
+                      input.value = input.value.replace(/\D/g, "");
+                      if (input.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                      }
+                    });
+
+                    input.addEventListener("keydown", event => {
+                      if (event.key === "Backspace" && !input.value && index > 0) {
+                        inputs[index - 1].focus();
+                      }
+                    });
+                  });
+                },
+                preConfirm: () => {
+                  const code = Array.from(document.querySelectorAll(".register-verify-code-input")).map(x => x.value).join("");
+                  if (code.length !== 6) {
+                    Swal.showValidationMessage("Vui lòng nhập đủ 6 số.");
+                    return null;
+                  }
+
+                  return code;
+                }
+              });
+
+              if (!isConfirmed || !value) {
+                return;
+              }
+
+              const verifyRes = await fetch("/api/user/register/verify-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, code: value })
+              });
+
+              const verifyData = await verifyRes.json();
+              if (!verifyRes.ok) {
+                await Swal.fire(verifyData.message ?? "Mã xác thực không hợp lệ.");
+                setRegisterEmailVerifiedState(false, "Email chưa được xác thực.");
+                return;
+              }
+
+              registerCodeVerifiedEmail = email.toLowerCase();
+              setRegisterEmailVerifiedState(true, "Email đã được xác thực.");
+              await Swal.fire(verifyData.message ?? "Xác thực email thành công.", "", "success");
+            }
+
+            sendRegisterCodeButton.onclick = async () => {
+              const email = registerEmailInput.value?.trim();
+              if (!email) {
+                Swal.fire("Vui lòng nhập email.");
+                return;
+              }
+
+              registerCodeVerifiedEmail = "";
+              setRegisterEmailVerifiedState(false, "Email chưa được xác thực.");
+
+              const response = await fetch("/api/user/register/send-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+              });
+
+              const result = await response.json();
+              if (!response.ok) {
+                if (result.retryAfterSeconds && result.retryAfterSeconds > 0) {
+                  startRegisterCountdown(result.retryAfterSeconds);
+                }
+                Swal.fire(result.message ?? "Không thể gửi mã xác thực.");
+                return;
+              }
+
+              startRegisterCountdown(result.retryAfterSeconds ?? 30);
+              await Swal.fire(result.message ?? "Đã gửi mã xác thực.", "", "success");
+              await openRegisterCodePopup(email);
+            };
             document.getElementById("loginForm").onsubmit = async e => {
               e.preventDefault();
 
@@ -598,7 +744,11 @@
                 Swal.fire("Mật khẩu không khớp");
                 return;
               }
-
+              const email = registerEmailInput.value?.trim().toLowerCase();
+              if (!email || registerCodeVerifiedEmail !== email) {
+                Swal.fire("Vui lòng xác thực email trước khi đăng ký.");
+                return;
+              }
               const btn = document.getElementById("registerButton");
               btn.disabled = true;
 
@@ -613,6 +763,8 @@
 
                 if (res.ok) {
                   await Swal.fire("Đăng ký thành công", "", "success");
+                  registerCodeVerifiedEmail = "";
+                  setRegisterEmailVerifiedState(false, "Email chưa được xác thực.");
                   applyMode("login", true);
                   loginName.value = registerForm.loginName.value;
                 } else {

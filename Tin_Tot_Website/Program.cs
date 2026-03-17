@@ -127,8 +127,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("1"));
-    options.AddPolicy("BannerManagePolicy", policy => policy.RequireRole("1", "2"));
-    options.AddPolicy("CategoryManagePolicy", policy => policy.RequireRole("1", "3"));
+    options.AddPolicy("ListingManagePolicy", policy => policy.RequireRole("1", "2"));
+    options.AddPolicy("UserManagePolicy", policy => policy.RequireRole("1", "3"));
 });
 var redisConnection = builder.Configuration["Redis:Connection"];
 if (string.IsNullOrWhiteSpace(redisConnection))

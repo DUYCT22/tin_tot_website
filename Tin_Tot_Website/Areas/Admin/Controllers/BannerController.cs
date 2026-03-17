@@ -27,7 +27,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             _bannerService = bannerService;
         }
 
-        [Authorize(Policy = "BannerManagePolicy")]
+        [Authorize(Policy = "AdminOnlyPolicy")]
         [HttpPost]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Create([FromForm] string link, [FromForm] bool status, [FromForm] int orders, IFormFile image)
@@ -46,7 +46,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             }
         }
 
-        [Authorize(Policy = "BannerManagePolicy")]
+        [Authorize(Policy = "AdminOnlyPolicy")]
         [HttpPut("{id:int}")]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Update(int id, [FromForm] string link, [FromForm] bool status, [FromForm] int orders, IFormFile? image)

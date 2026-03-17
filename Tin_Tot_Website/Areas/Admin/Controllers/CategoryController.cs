@@ -27,7 +27,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             _categoryService = categoryService;
         }
 
-        [Authorize(Policy = "CategoryManagePolicy")]
+        [Authorize(Policy = "AdminOnlyPolicy")]
         [HttpPost]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Create([FromForm] string name, [FromForm] int? parentId, IFormFile? image)
@@ -45,7 +45,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             }
         }
 
-        [Authorize(Policy = "CategoryManagePolicy")]
+        [Authorize(Policy = "AdminOnlyPolicy")]
         [HttpPut("{id:int}")]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Update(int id, [FromForm] string name, [FromForm] int? parentId, IFormFile? image)
