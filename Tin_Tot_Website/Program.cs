@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
+using StackExchange.Redis;
 using Tin_Tot_Website.Services;
 using Tin_Tot_Website.Services.Messages;
 using Tin_Tot_Website.Services.Notifications;
@@ -68,10 +70,11 @@ builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IContactService, ContactService>();
-
-builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
+builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
 builder.Services.AddScoped<IPublicListingQueryService, PublicListingQueryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
@@ -82,7 +85,8 @@ builder.Services.AddScoped<INotificationRealtimePublisher, SignalRNotificationRe
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IMessageRealtimePublisher, SignalRMessageRealtimePublisher>();
 builder.Services.AddScoped<IHomeReadRepository, HomeReadRepository>();
-builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
+builder.Services.AddSingleton<IPasswordResetRepository, InMemoryPasswordResetRepository>();
+builder.Services.AddScoped<IPasswordResetEmailSender, SmtpPasswordResetEmailSender>();
 builder.Services.AddScoped<IContactEmailSender, SmtpContactEmailSender>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IEntityKeyService, EntityKeyService>();
@@ -123,12 +127,54 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("1"));
-    options.AddPolicy("BannerManagePolicy", policy => policy.RequireRole("1", "2"));
-    options.AddPolicy("CategoryManagePolicy", policy => policy.RequireRole("1", "3"));
+    options.AddPolicy("ListingManagePolicy", policy => policy.RequireRole("1", "2"));
+    options.AddPolicy("UserManagePolicy", policy => policy.RequireRole("1", "3"));
 });
-builder.Services.AddStackExchangeRedisCache(options =>
+var redisConnection = builder.Configuration["Redis:Connection"];
+if (string.IsNullOrWhiteSpace(redisConnection))
 {
-    options.Configuration = builder.Configuration["Redis:Connection"];
+    builder.Services.AddDistributedMemoryCache();
+}
+else
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        var redisOptions = ConfigurationOptions.Parse(redisConnection);
+        redisOptions.AbortOnConnectFail = false;
+        redisOptions.ConnectTimeout = 1000;
+        redisOptions.AsyncTimeout = 1000;
+        options.ConfigurationOptions = redisOptions;
+    });
+}
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("MessageSendPolicy", context =>
+    {
+        var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? context.Connection.RemoteIpAddress?.ToString()
+            ?? "anonymous";
+
+        return RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: userId,
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 4,
+                Window = TimeSpan.FromSeconds(30),
+                SegmentsPerWindow = 3,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            "{\"success\":false,\"message\":\"Bạn gửi tin nhắn quá nhanh. Vui lòng thử lại sau 30 giây.\"}",
+            cancellationToken);
+    };
 });
 var app = builder.Build();
 
@@ -145,6 +191,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 app.MapHub<Tin_Tot_Website.Hubs.NotificationHub>("/hubs/notifications");
 app.MapHub<Tin_Tot_Website.Hubs.MessageHub>("/hubs/messages");

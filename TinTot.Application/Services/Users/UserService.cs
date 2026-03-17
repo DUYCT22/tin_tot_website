@@ -25,7 +25,7 @@ namespace TinTot.Application.Services.Users
 
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
-            // Bạn có thể mở rộng thêm method GetAll ở repository nếu cần
+            // mở rộng thêm method GetAll ở repository nếu cần
             throw new NotImplementedException();
         }
 
