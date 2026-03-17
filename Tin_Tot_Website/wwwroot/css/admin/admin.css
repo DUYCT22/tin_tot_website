@@ -77,3 +77,23 @@
 .admin-shell.sidebar-collapsed .sidebar-brand {
     font-size: 0
 }
+.admin-message-popup {
+    width: 560px;
+    max-width: 92vw;
+}
+
+.admin-message-conversations {
+    width: 220px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.admin-message-chat {
+    width: 340px;
+}
+
+.admin-message-chat-body {
+    height: 280px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
