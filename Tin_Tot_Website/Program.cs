@@ -73,6 +73,7 @@ builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IAdminListingModerationService, AdminListingModerationService>();
+builder.Services.AddScoped<IVisibleListingsExcelExporter, VisibleListingsExcelExporter>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();

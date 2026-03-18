@@ -33,6 +33,7 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
 
     let selectedReceiverKey = null;
     let selectedReceiverId = null;
+    let unreadIncomingCount = 0;
 
     const authHeaders = () => token
         ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
@@ -65,7 +66,6 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
         const json = await resp.json();
         if (!json.success) return;
 
-        let unreadCount = 0;
         conversationList.innerHTML = '';
 
         json.data.forEach(x => {
@@ -87,10 +87,9 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
             el.onclick = () => selectConversation(x.receiverKey, x.displayName, Number(x.receiverId));
             conversationList.appendChild(el);
 
-            if (x.receiverId !== myUserId) unreadCount += 1;
         });
 
-        setMessageBadge(unreadCount);
+        setMessageBadge(unreadIncomingCount);
         updateActiveConversation();
     };
 
@@ -155,6 +154,8 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
     });
 
     messageBtn?.addEventListener('click', async () => {
+        unreadIncomingCount = 0;
+        setMessageBadge(unreadIncomingCount);
         await loadConversations();
         if (selectedReceiverKey) await loadHistory();
     });
@@ -164,7 +165,12 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
         .withAutomaticReconnect()
         .build();
 
-    connection.on('ReceiveMessage', async () => {
+    connection.on('ReceiveMessage', async (payload) => {
+        const senderId = Number(payload?.senderId ?? payload?.SenderId ?? 0);
+        if (senderId > 0 && senderId !== myUserId) {
+            unreadIncomingCount += 1;
+            setMessageBadge(unreadIncomingCount);
+        }
         await loadConversations();
         if (selectedReceiverKey) await loadHistory();
     });

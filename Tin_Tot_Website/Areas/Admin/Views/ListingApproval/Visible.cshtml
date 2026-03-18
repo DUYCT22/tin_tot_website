@@ -8,6 +8,9 @@
         <h4 class="mb-1"><i class="fa-solid fa-eye me-2"></i>Tin đang hiển thị</h4>
         <p class="text-muted mb-0"><span id="visibleListingCount">@Model.TotalCount</span> bài đăng đang hiển thị.</p>
     </div>
+    <button id="openExportVisibleExcelModalBtn" type="button" class="btn btn-success">
+        <i class="fa-solid fa-file-excel me-1"></i>Xuất Excel
+    </button>
 </div>
 
 <div class="table-responsive">
@@ -29,7 +32,34 @@
         </tbody>
     </table>
 </div>
+<div class="modal fade" id="exportVisibleExcelModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xuất Excel tin đang hiển thị</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="exportVisibleSelectAll" checked />
+                    <label class="form-check-label fw-semibold" for="exportVisibleSelectAll">
+                        Chọn tất cả bài đăng
+                    </label>
+                </div>
 
+                <div id="exportVisibleSelectionList" class="border rounded p-2" style="max-height: 320px; overflow-y: auto;">
+                    <div class="text-muted small">Đang tải danh sách...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button id="submitExportVisibleExcelBtn" type="button" class="btn btn-success">
+                    <i class="fa-solid fa-download me-1"></i>Xuất Excel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="text-center mt-3">
     <button id="loadMoreVisibleBtn" type="button" class="btn btn-outline-primary" disabled="@(!Model.HasMore)">
         @(!Model.HasMore ? "Đã hiển thị tất cả" : "Tải thêm")
@@ -57,6 +87,12 @@
             const token = localStorage.getItem('tin_tot_token');
             const imageModal = new bootstrap.Modal(document.getElementById('visibleListingImageModal'));
             const imagePreview = document.getElementById('visibleListingImagePreview');
+            const openExportModalBtn = document.getElementById('openExportVisibleExcelModalBtn');
+            const exportModal = new bootstrap.Modal(document.getElementById('exportVisibleExcelModal'));
+            const selectAllCheckbox = document.getElementById('exportVisibleSelectAll');
+            const selectionList = document.getElementById('exportVisibleSelectionList');
+            const submitExportBtn = document.getElementById('submitExportVisibleExcelBtn');
+            let exportListings = [];
 
             let currentPage = @Model.Page;
             const pageSize = @Model.PageSize;
@@ -126,7 +162,106 @@
             bindRowActions(document);
             refreshRowOrder();
             updateLoadMoreState();
+            const updateSelectionListState = () => {
+                const disabled = selectAllCheckbox.checked;
+                selectionList.querySelectorAll('input[type="checkbox"]').forEach(input => {
+                    input.disabled = disabled;
+                    if (disabled) input.checked = true;
+                });
+            };
 
+            const renderExportSelection = () => {
+                if (!exportListings.length) {
+                    selectionList.innerHTML = '<div class="text-muted small">Không có bài đăng nào để xuất.</div>';
+                    return;
+                }
+
+                selectionList.innerHTML = exportListings.map(item => `
+                    <label class="d-flex align-items-start gap-2 p-2 border-bottom">
+                        <input class="form-check-input mt-1 export-listing-item" type="checkbox" value="${item.id}" checked />
+                        <span class="small">
+                            <span class="fw-semibold">#${item.id} - ${item.title || '(Không tiêu đề)'}</span><br />
+                            <span class="text-muted">Người đăng: ${item.posterName || 'Không rõ'} • ${item.createdAt || ''}</span>
+                        </span>
+                    </label>
+                `).join('');
+
+                updateSelectionListState();
+            };
+
+            const loadExportSelection = async () => {
+                selectionList.innerHTML = '<div class="text-muted small">Đang tải danh sách...</div>';
+                try {
+                    const response = await fetch('/admin/tin-dang-hien-thi/danh-sach-xuat-excel', { headers: authHeaders() });
+                    const json = await response.json();
+                    if (!response.ok || !json.success) {
+                        throw new Error(json.message || 'Không thể tải danh sách bài đăng.');
+                    }
+
+                    exportListings = Array.isArray(json.data) ? json.data : [];
+                    renderExportSelection();
+                } catch (error) {
+                    selectionList.innerHTML = `<div class="text-danger small">${error.message || 'Không thể tải danh sách bài đăng.'}</div>`;
+                }
+            };
+
+            openExportModalBtn?.addEventListener('click', async () => {
+                selectAllCheckbox.checked = true;
+                await loadExportSelection();
+                exportModal.show();
+            });
+
+            selectAllCheckbox?.addEventListener('change', updateSelectionListState);
+
+            submitExportBtn?.addEventListener('click', async () => {
+                const listingIds = Array.from(selectionList.querySelectorAll('.export-listing-item:checked'))
+                    .map(input => Number(input.value))
+                    .filter(Number.isFinite);
+
+                const exportAll = selectAllCheckbox.checked;
+                if (!exportAll && listingIds.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 bài đăng để xuất Excel.');
+                    return;
+                }
+
+                submitExportBtn.disabled = true;
+                submitExportBtn.textContent = 'Đang xuất...';
+                try {
+                    const response = await fetch('/admin/tin-dang-hien-thi/xuat-excel', {
+                        method: 'POST',
+                        headers: {
+                            ...authHeaders(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ exportAll, listingIds })
+                    });
+
+                    if (!response.ok) {
+                        const maybeJson = await response.json().catch(() => null);
+                        throw new Error(maybeJson?.message || 'Xuất Excel thất bại.');
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const contentDisposition = response.headers.get('Content-Disposition') || '';
+                    const fileNameMatch = contentDisposition.match(/filename=\"?([^\";]+)\"?/i);
+                    const fileName = fileNameMatch?.[1] || 'tin-dang-hien-thi.xlsx';
+
+                    const anchor = document.createElement('a');
+                    anchor.href = url;
+                    anchor.download = fileName;
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    anchor.remove();
+                    window.URL.revokeObjectURL(url);
+                    exportModal.hide();
+                } catch (error) {
+                    alert(error.message || 'Xuất Excel thất bại.');
+                } finally {
+                    submitExportBtn.disabled = false;
+                    submitExportBtn.innerHTML = '<i class="fa-solid fa-download me-1"></i>Xuất Excel';
+                }
+            });
             loadMoreBtn?.addEventListener('click', async () => {
                 if (loadMoreBtn.disabled) return;
 

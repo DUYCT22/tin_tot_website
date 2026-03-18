@@ -10,15 +10,17 @@ public class AdminListingModerationService : IAdminListingModerationService
     private readonly IAdminListingModerationRepository _repository;
     private readonly IListingImageService _listingImageService;
     private readonly INotificationService _notificationService;
-
+    private readonly IVisibleListingsExcelExporter _visibleListingsExcelExporter;
     public AdminListingModerationService(
         IAdminListingModerationRepository repository,
         IListingImageService listingImageService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IVisibleListingsExcelExporter visibleListingsExcelExporter)
     {
         _repository = repository;
         _listingImageService = listingImageService;
         _notificationService = notificationService;
+        _visibleListingsExcelExporter = visibleListingsExcelExporter;
     }
 
     public async Task<AdminPendingListingsPageDto> GetPendingListingsAsync(int page = 1, int pageSize = 4)
@@ -51,6 +53,38 @@ public class AdminListingModerationService : IAdminListingModerationService
             TotalCount = totalCount,
             HasMore = page * pageSize < totalCount,
             Listings = items
+        };
+    }
+    public async Task<IReadOnlyList<AdminPendingListingItemDto>> GetApprovedListingsForExportSelectionAsync()
+        => await _repository.GetListingsByStatusForExportAsync(status: 1);
+
+    public async Task<ExportFileDto> ExportApprovedListingsExcelAsync(bool exportAll, IReadOnlyCollection<int>? selectedListingIds)
+    {
+        IReadOnlyCollection<int>? listingIds = null;
+        if (!exportAll)
+        {
+            var selectedIds = selectedListingIds?
+                .Where(id => id > 0)
+                .Distinct()
+                .ToArray() ?? Array.Empty<int>();
+
+            if (selectedIds.Length == 0)
+            {
+                throw new InvalidOperationException("Vui lòng chọn ít nhất 1 bài đăng để xuất Excel.");
+            }
+
+            listingIds = selectedIds;
+        }
+
+        var listings = await _repository.GetListingsByStatusForExportAsync(status: 1, listingIds);
+        var content = _visibleListingsExcelExporter.Export(listings);
+        var fileName = $"tin-dang-hien-thi-{DateTime.UtcNow:yyyyMMdd-HHmmss}.xlsx";
+
+        return new ExportFileDto
+        {
+            FileName = fileName,
+            ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            Content = content
         };
     }
     public async Task ApproveListingAsync(int listingId)

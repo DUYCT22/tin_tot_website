@@ -49,6 +49,34 @@ public class ListingApprovalController : Controller
         PopulateMessageKeys(model.Listings);
         return PartialView("_VisibleListingRows", model.Listings);
     }
+    [HttpGet("/admin/tin-dang-hien-thi/danh-sach-xuat-excel")]
+    public async Task<IActionResult> GetVisibleListingsForExcelExport()
+    {
+        var listings = await _service.GetApprovedListingsForExportSelectionAsync();
+        var payload = listings.Select(x => new
+        {
+            id = x.ListingId,
+            title = x.Title,
+            posterName = x.PosterName,
+            createdAt = x.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? string.Empty
+        });
+
+        return Ok(new { success = true, data = payload });
+    }
+
+    [HttpPost("/admin/tin-dang-hien-thi/xuat-excel")]
+    public async Task<IActionResult> ExportVisibleListingsExcel([FromBody] ExportVisibleListingsRequest request)
+    {
+        try
+        {
+            var result = await _service.ExportApprovedListingsExcelAsync(request.ExportAll, request.ListingIds);
+            return File(result.Content, result.ContentType, result.FileName);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { success = false, message = ex.Message });
+        }
+    }
     [HttpPost("{id:int}/duyet")]
     public async Task<IActionResult> Approve(int id)
     {
@@ -111,5 +139,10 @@ public class ListingApprovalController : Controller
                 ? _entityKeyService.ProtectId("seller", item.UserId.Value)
                 : string.Empty;
         }
+    }
+    public class ExportVisibleListingsRequest
+    {
+        public bool ExportAll { get; set; }
+        public List<int> ListingIds { get; set; } = new();
     }
 }
