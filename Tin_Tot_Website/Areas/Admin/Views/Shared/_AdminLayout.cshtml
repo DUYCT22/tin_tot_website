@@ -5,6 +5,7 @@
     var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
     var actionName = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
     var isListingManager = role == "1" || role == "2";
+    var isAdmin = role == "1";
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -28,9 +29,13 @@
                     <a class="nav-link @(controllerName == "ListingApproval" && actionName == "Index" ? "active" : "")" href="/admin/duyet-tin"><i class="fa-solid fa-list-check"></i> Duyệt Tin</a>
                     <a class="nav-link @(controllerName == "ListingApproval" && actionName == "Visible" ? "active" : "")" href="/admin/tin-dang-hien-thi"><i class="fa-solid fa-eye"></i> Tin đang hiện</a>
                 }
+                
+                @if (isAdmin)
+                {
+                    <a class="nav-link @(controllerName == "Banner" ? "active" : "")" href="/admin/banner"><i class="fa-solid fa-image"></i> Banner</a>
+                    <a class="nav-link @(controllerName == "Category" ? "active" : "")" href="/admin/danh-muc"><i class="fa-solid fa-folder-tree"></i> Danh mục</a>
+                }
                 <a class="nav-link" href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
-                <a class="nav-link" href="#"><i class="fa-solid fa-image"></i> Banner</a>
-                <a class="nav-link" href="#"><i class="fa-solid fa-folder-tree"></i> Danh mục</a>
             </nav>
         </aside>
         <div class="admin-main">

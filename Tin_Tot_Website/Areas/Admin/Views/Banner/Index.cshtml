@@ -1,0 +1,218 @@
+﻿@model Tin_Tot_Website.Areas.Admin.Models.BannerManagementPageViewModel
+@{
+    ViewData["Title"] = "Quản lý Banner";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-1"><i class="fa-solid fa-image me-2"></i>Quản lý Banner</h4>
+        <p class="text-muted mb-0">Admin có thể thêm, cập nhật và xóa banner.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-header bg-light fw-semibold">Thêm banner mới</div>
+    <div class="card-body">
+        <form id="createBannerForm" class="row g-3" enctype="multipart/form-data">
+            <div class="col-md-4">
+                <label class="form-label">Link</label>
+                <input name="link" class="form-control" placeholder="https://..." />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Thứ tự</label>
+                <input name="orders" type="number" class="form-control" value="0" required />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Trạng thái</label>
+                <select name="status" class="form-select">
+                    <option value="true">Hiển thị</option>
+                    <option value="false">Ẩn</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Ảnh banner</label>
+                <input name="image" type="file" class="form-control" accept="image/*" required />
+            </div>
+            <div class="col-md-1 d-grid align-items-end">
+                <button class="btn btn-primary" type="submit">Thêm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="width:70px;">ID</th>
+                <th style="min-width: 190px;">Ảnh</th>
+                <th>Link</th>
+                <th style="width:100px;">Thứ tự</th>
+                <th style="width:110px;">Trạng thái</th>
+                <th style="width:140px;">Người tạo</th>
+                <th style="width:140px;">Người sửa</th>
+                <th style="width:170px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Banners)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.Image))
+                        {
+                            <img src="@item.Image" alt="banner @item.Id" style="max-width: 170px; max-height: 70px; object-fit: cover;" class="rounded border" />
+                        }
+                    </td>
+                    <td class="text-break">@item.Link</td>
+                    <td>@item.Orders</td>
+                    <td>
+                        @if (item.Status)
+                        {
+                            <span class="badge bg-success">Hiển thị</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ẩn</span>
+                        }
+                    </td>
+                    <td>@(item.CreatedBy?.ToString() ?? "-")</td>
+                    <td>@(item.UpdatedBy?.ToString() ?? "-")</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary edit-banner-btn"
+                                    data-id="@item.Id"
+                                    data-link="@item.Link"
+                                    data-orders="@item.Orders"
+                                    data-status="@item.Status">
+                                Sửa
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-banner-btn" data-id="@item.Id">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="editBannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật banner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBannerForm" class="row g-3" enctype="multipart/form-data">
+                    <input type="hidden" name="id" />
+                    <div class="col-12">
+                        <label class="form-label">Link</label>
+                        <input name="link" class="form-control" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Thứ tự</label>
+                        <input name="orders" type="number" class="form-control" required />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="true">Hiển thị</option>
+                            <option value="false">Ẩn</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Ảnh mới (không bắt buộc)</label>
+                        <input name="image" type="file" class="form-control" accept="image/*" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveBannerBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const authHeaders = () => {
+                const token = localStorage.getItem('tin_tot_token');
+                return token ? { Authorization: `Bearer ${token}` } : {};
+            };
+
+            const handleApi = async (url, options = {}) => {
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...(options.headers || {}),
+                        ...authHeaders()
+                    }
+                });
+
+                const json = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(json.message || 'Có lỗi xảy ra.');
+                }
+
+                return json;
+            };
+
+            const createForm = document.getElementById('createBannerForm');
+            createForm?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(createForm);
+                try {
+                    await handleApi('/api/banners', { method: 'POST', body: formData });
+                    location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+
+            const editForm = document.getElementById('editBannerForm');
+            const editModalEl = document.getElementById('editBannerModal');
+            const editModal = new bootstrap.Modal(editModalEl);
+
+            document.querySelectorAll('.edit-banner-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    editForm.elements['id'].value = btn.dataset.id;
+                    editForm.elements['link'].value = btn.dataset.link ?? '';
+                    editForm.elements['orders'].value = btn.dataset.orders ?? 0;
+                    editForm.elements['status'].value = btn.dataset.status === 'True' ? 'true' : 'false';
+                    editModal.show();
+                });
+            });
+
+            document.getElementById('saveBannerBtn')?.addEventListener('click', async () => {
+                const id = editForm.elements['id'].value;
+                const formData = new FormData(editForm);
+                formData.delete('id');
+
+                try {
+                    await handleApi(`/api/banners/${id}`, { method: 'PUT', body: formData });
+                    location.reload();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+
+            document.querySelectorAll('.delete-banner-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('Bạn có chắc muốn xóa banner này?')) return;
+
+                    try {
+                        await handleApi(`/api/banners/${btn.dataset.id}`, { method: 'DELETE' });
+                        location.reload();
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                });
+            });
+        })();
+    </script>
+}

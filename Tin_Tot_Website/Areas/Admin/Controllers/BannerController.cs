@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Tin_Tot_Website.Areas.Admin.Models;
 using TinTot.Application.DTOs;
 using TinTot.Application.DTOs.Users;
 using TinTot.Application.Interfaces.Banners;
+using TinTot.Infrastructure.Data;
 
 namespace Tin_Tot_Website.Areas.Admin.Controllers
 {
-    [Authorize]
-    [ApiController]
-    [Route("api/banners")]
-    public class BannerController : ControllerBase
+    [Area("Admin")]
+    [Authorize(Policy = "AdminOnlyPolicy")]
+    [Route("admin/banner")]
+    public class BannerController : Controller
     {
         private const long MaxAvatarSizeInBytes = 5 * 1024 * 1024;
         private static readonly HashSet<string> AllowedImageContentTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -21,23 +24,57 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             "image/gif"
         };
         private readonly IBannerService _bannerService;
-
-        public BannerController(IBannerService bannerService)
+        private readonly AppDbContext _dbContext;
+        public BannerController(IBannerService bannerService, AppDbContext dbContext)
         {
             _bannerService = bannerService;
+            _dbContext = dbContext;
         }
 
-        [Authorize(Policy = "AdminOnlyPolicy")]
-        [HttpPost]
+        [HttpGet("")]
+        public async Task<IActionResult> Index()
+        {
+            var banners = await _dbContext.Banners
+                .AsNoTracking()
+                .OrderBy(x => x.Orders)
+                .ThenByDescending(x => x.Id)
+                .Select(x => new BannerManagementItemViewModel
+                {
+                    Id = x.Id,
+                    Link = x.Link,
+                    Image = x.Image,
+                    Status = x.Status,
+                    Orders = x.Orders,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedBy = x.UpdatedBy
+                })
+                .ToListAsync();
+
+            return View(new BannerManagementPageViewModel
+            {
+                Banners = banners
+            });
+        }
+
+        [HttpPost("/api/banners")]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Create([FromForm] string link, [FromForm] bool status, [FromForm] int orders, IFormFile image)
         {
             try
             {
-                var actorUserId = GetActorUserId(); if (actorUserId is null) return Unauthorized();
+                var actorUserId = GetActorUserId();
+                if (actorUserId is null) return Unauthorized();
                 var upload = await ToImageUploadAsync(image);
                 if (upload is null) return BadRequest(new { message = "Image là bắt buộc." });
-                var result = await _bannerService.CreateAsync(new BannerUpsertDto { Link = link, Status = status, Orders = orders, ActorUserId = actorUserId }, upload);
+                var result = await _bannerService.CreateAsync(new BannerUpsertDto
+                {
+                    Link = link,
+                    Status = status,
+                    Orders = orders,
+                    ActorUserId = actorUserId
+                }, upload);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -46,8 +83,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOnlyPolicy")]
-        [HttpPut("{id:int}")]
+        [HttpPut("/api/banners/{id:int}")]
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> Update(int id, [FromForm] string link, [FromForm] bool status, [FromForm] int orders, IFormFile? image)
         {
@@ -55,7 +91,13 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             {
                 var upload = await ToImageUploadAsync(image);
                 var actorUserId = GetActorUserId();
-                var result = await _bannerService.UpdateAsync(id, new BannerUpsertDto { Link = link, Status = status, Orders = orders, ActorUserId = actorUserId }, upload);
+                var result = await _bannerService.UpdateAsync(id, new BannerUpsertDto
+                {
+                    Link = link,
+                    Status = status,
+                    Orders = orders,
+                    ActorUserId = actorUserId
+                }, upload);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
@@ -68,8 +110,7 @@ namespace Tin_Tot_Website.Areas.Admin.Controllers
             }
         }
 
-        [Authorize(Policy = "AdminOnlyPolicy")]
-        [HttpDelete("{id:int}")]
+        [HttpDelete("/api/banners/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
