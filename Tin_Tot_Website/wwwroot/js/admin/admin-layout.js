@@ -8,6 +8,19 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
 });
 (() => {
     const token = localStorage.getItem('tin_tot_token');
+    const profile = JSON.parse(localStorage.getItem('tin_tot_user') || '{}');
+    const myUserId = Number(profile.id || profile.Id || profile.userId || profile.UserId || 0);
+
+    const fallbackAvatar = (name) => {
+        const firstChar = (name || '?').trim().charAt(0).toUpperCase() || '?';
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstChar)}&background=dee2e6&color=495057&size=80`;
+    };
+
+    const adminNavbarAvatar = document.getElementById('adminNavbarAvatar');
+    if (adminNavbarAvatar) {
+        const displayName = profile.fullName || profile.FullName || profile.loginName || profile.LoginName || adminNavbarAvatar.alt || 'A';
+        adminNavbarAvatar.src = profile.avatar || profile.Avatar || fallbackAvatar(displayName);
+    }
     if (!token) return;
 
     const messageBtn = document.getElementById('adminMessageBtn');
@@ -21,15 +34,9 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
     let selectedReceiverKey = null;
     let selectedReceiverId = null;
 
-    const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
-
-    const profile = JSON.parse(localStorage.getItem('tin_tot_user') || '{}');
-    const myUserId = Number(profile.id || 0);
-
-    const fallbackAvatar = (name) => {
-        const firstChar = (name || '?').trim().charAt(0).toUpperCase() || '?';
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(firstChar)}&background=dee2e6&color=495057&size=80`;
-    };
+    const authHeaders = () => token
+        ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+        : { 'Content-Type': 'application/json' };
 
     const timeFmt = (v) => {
         if (!v) return '';

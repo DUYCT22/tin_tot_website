@@ -48,7 +48,20 @@ public class AuthController : Controller
             Expires = DateTimeOffset.UtcNow.AddHours(12)
         });
 
-        return Ok(new { success = true, redirectUrl = Url.Action("Index", "Dashboard", new { area = "Admin" }) });
+        return Ok(new
+        {
+            success = true,
+            token,
+            user = new
+            {
+                result.User.Id,
+                result.User.LoginName,
+                result.User.FullName,
+                result.User.Avatar,
+                result.User.Role
+            },
+            redirectUrl = Url.Action("Index", "Dashboard", new { area = "Admin" })
+        });
     }
 
     [Authorize]

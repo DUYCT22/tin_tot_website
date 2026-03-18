@@ -25,7 +25,17 @@
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e){
           e.preventDefault();
           const res = await fetch('/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({loginName: loginName.value, password: password.value})});
-          if(res.ok){ const data = await res.json(); location.href = data.redirectUrl; return; }
+          if(res.ok){
+            const data = await res.json();
+            if (data.token) {
+              localStorage.setItem('tin_tot_token', data.token);
+            }
+            if (data.user) {
+              localStorage.setItem('tin_tot_user', JSON.stringify(data.user));
+            }
+            location.href = data.redirectUrl;
+            return;
+          }
           document.getElementById('error').innerText = 'Không có quyền truy cập trang quản trị hoặc sai tài khoản.';
         });
     </script>

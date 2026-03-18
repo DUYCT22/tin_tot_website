@@ -101,7 +101,9 @@
         }
         const chatCards = Array.from(document.querySelectorAll('.quick-chat-card'));
         const token = localStorage.getItem('tin_tot_token');
-        const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` });
+         const headers = () => token
+            ? ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` })
+            : ({ 'Content-Type': 'application/json' });
 
         const timeFmt = (v) => {
             if (!v) return '';
@@ -129,7 +131,7 @@
             const receiverKey = card.dataset.receiverKey;
             const body = card.querySelector('.admin-quick-chat-body');
             const profile = JSON.parse(localStorage.getItem('tin_tot_user') || '{}');
-            const myId = Number(profile.id || 0);
+            const myId = Number(profile.id || profile.Id || profile.userId || profile.UserId || 0);
 
             const resp = await fetch(`/api/messages/history/${encodeURIComponent(receiverKey)}`, { headers: headers() });
             if (!resp.ok) return;
