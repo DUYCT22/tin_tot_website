@@ -120,7 +120,10 @@
                 .replace(/đ/g, 'd')
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/(^-|-$)/g, '');
-
+            function truncateText(text, maxLength) {
+            if (!text) return '';
+            return text.length > maxLength ? text.substring(0, maxLength) + '…' : text;
+            }
             const loadConversations = async () => {
                 const resp = await fetch('/api/messages/conversations', { headers: authHeaders() });
                 if (!resp.ok) return;
@@ -133,15 +136,16 @@
                     el.type = 'button';
                     el.className = 'list-group-item list-group-item-action conversation-item';
                     el.dataset.receiverKey = x.receiverKey;
-                    el.dataset.receiverName = x.displayName
-                     el.innerHTML = `
-                        <div class='d-flex align-items-start gap-2'>
-                            <img src='${x.avatar || fallbackAvatar(x.displayName)}' class='rounded-circle conversation-avatar' alt='${x.displayName}' />
-                            <div class='min-w-0'>
-                                <div class='fw-semibold text-truncate'>${x.displayName}</div>
-                                <small class='text-muted d-block text-truncate'>${x.lastMessage}</small>
-                            </div>
-                        </div>`;
+                    el.dataset.receiverName = x.displayName;
+                    const lastMsgPreview = truncateText(x.lastMessage, 20);
+                      el.innerHTML = `
+            <div class='d-flex align-items-start gap-2'>
+                <img src='${x.avatar || fallbackAvatar(x.displayName)}' class='rounded-circle conversation-avatar' alt='${x.displayName}' />
+                <div class='min-w-0'>
+                    <div class='fw-semibold text-truncate'>${x.displayName}</div>
+                    <small class='text-muted d-block'>${lastMsgPreview}</small>
+                </div>
+            </div>`;
                     el.onclick = () => selectConversation(x.receiverKey, x.displayName);
                     conversationList.appendChild(el);
                 });

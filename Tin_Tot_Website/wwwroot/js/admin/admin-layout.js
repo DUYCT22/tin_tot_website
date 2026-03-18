@@ -55,7 +55,10 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
             item.classList.toggle('active', item.dataset.receiverKey === selectedReceiverKey);
         });
     };
-
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '…' : text;
+    }
     const loadConversations = async () => {
         const resp = await fetch('/api/messages/conversations', { headers: authHeaders() });
         if (!resp.ok) return;
@@ -72,12 +75,13 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
             el.dataset.receiverKey = x.receiverKey;
             el.dataset.receiverId = x.receiverId;
             el.dataset.receiverName = x.displayName;
+            const lastMsgPreview = truncateText(x.lastMessage, 15);
             el.innerHTML = `
                 <div class='d-flex align-items-start gap-2'>
                     <img src='${x.avatar || fallbackAvatar(x.displayName)}' class='rounded-circle' style='width:36px;height:36px;object-fit:cover' alt='${x.displayName}' />
                     <div class='min-w-0'>
                         <div class='text-truncate'>${x.displayName}</div>
-                        <small class='text-muted d-block text-truncate'>${x.lastMessage || ''}</small>
+                        <small class='text-muted text-truncate d-block'>${lastMsgPreview || ''}</small>
                     </div>
                 </div>`;
             el.onclick = () => selectConversation(x.receiverKey, x.displayName, Number(x.receiverId));
@@ -98,7 +102,7 @@ document.getElementById('adminLogoutButton')?.addEventListener('click', async ()
         const bubble = document.createElement('div');
         bubble.className = `p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-white border'}`;
         bubble.style.maxWidth = '78%';
-        bubble.innerHTML = `<div>${(m.content || m.Content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt || m.SentAt)}</small>`;
+        bubble.innerHTML = `<div class='message-bubble-content'>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
 
         wrap.appendChild(bubble);
         chatBody.appendChild(wrap);

@@ -126,3 +126,8 @@
     max-height: 96px;
     overflow: auto;
 }
+.message-bubble-content {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}

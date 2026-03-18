@@ -10,6 +10,8 @@ public class AdminPendingListingItemDto
     public DateTime? CreatedAt { get; set; }
     public int? UserId { get; set; }
     public string PosterName { get; set; } = string.Empty;
+    public string PosterKey { get; set; } = string.Empty;
+    public string ListingKey { get; set; } = string.Empty;
     public List<string> ImageUrls { get; set; } = new();
 }
 

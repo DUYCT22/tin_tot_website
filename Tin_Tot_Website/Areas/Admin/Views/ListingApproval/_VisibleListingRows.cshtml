@@ -1,0 +1,44 @@
+﻿@model IReadOnlyList<TinTot.Application.DTOs.Admin.AdminPendingListingItemDto>
+
+@for (var index = 0; index < Model.Count; index++)
+{
+    var item = Model[index];
+    <tr>
+        <td class="text-center listing-order">@(index + 1)</td>
+        <td class="fw-semibold">@item.Title</td>
+        <td>
+            @if (!item.ImageUrls.Any())
+            {
+                <span class="text-muted">Không có ảnh</span>
+            }
+            else
+            {
+                <div class="listing-image-strip">
+                    @foreach (var imageUrl in item.ImageUrls.Take(4))
+                    {
+                        <button type="button" class="listing-thumb btn p-0 border-0" data-full="@imageUrl">
+                            <img src="@imageUrl" alt="@item.Title" />
+                        </button>
+                    }
+                </div>
+            }
+        </td>
+        <td>
+            <div class="listing-detail-cell">@Html.Raw(item.Description)</div>
+        </td>
+        <td>@(item.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")</td>
+        <td>@item.PosterName</td>
+        <td><span class="badge text-bg-success">Đang hiển thị</span></td>
+        <td>
+            <div class="d-grid gap-2">
+                @if (!string.IsNullOrWhiteSpace(item.PosterKey) && !string.IsNullOrWhiteSpace(item.ListingKey))
+                {
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Index", "Messages", new { area = "", receiverKey = item.PosterKey, listingKey = item.ListingKey })">
+                        Nhắn tin
+                    </a>
+                }
+                <button type="button" class="btn btn-danger btn-sm delete-visible-btn" data-id="@item.ListingId">Xóa</button>
+            </div>
+        </td>
+    </tr>
+}

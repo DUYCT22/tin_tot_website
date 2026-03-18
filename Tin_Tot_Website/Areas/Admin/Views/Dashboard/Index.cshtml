@@ -121,7 +121,7 @@
             const bubble = document.createElement('div');
             bubble.className = `p-2 rounded ${isSelf ? 'bg-primary text-white' : 'bg-white border'}`;
             bubble.style.maxWidth = '78%';
-            bubble.innerHTML = `<div>${(m.content || m.Content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt || m.SentAt)}</small>`;
+            bubble.innerHTML = `<div class='message-bubble-content'>${(m.content || '').replace(/</g, '&lt;')}</div><small class='opacity-75'>${timeFmt(m.sentAt)}</small>`;
 
             wrap.appendChild(bubble);
             body.appendChild(wrap);

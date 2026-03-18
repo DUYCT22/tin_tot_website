@@ -1,0 +1,173 @@
+﻿@model TinTot.Application.DTOs.Admin.AdminPendingListingsPageDto
+@{
+    ViewData["Title"] = "Tin đang hiển thị";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-1"><i class="fa-solid fa-eye me-2"></i>Tin đang hiển thị</h4>
+        <p class="text-muted mb-0"><span id="visibleListingCount">@Model.TotalCount</span> bài đăng đang hiển thị.</p>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle admin-pending-table">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 70px;">STT</th>
+                <th style="width: 180px;">Tiêu đề</th>
+                <th style="min-width: 300px;">Hình ảnh</th>
+                <th style="min-width: 260px;">Chi tiết</th>
+                <th style="width: 150px;">Tạo lúc</th>
+                <th style="width: 160px;">Người đăng</th>
+                <th style="width: 130px;">Trạng thái</th>
+                <th style="width: 180px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody id="visibleListingBody">
+            @await Html.PartialAsync("_VisibleListingRows", Model.Listings)
+        </tbody>
+    </table>
+</div>
+
+<div class="text-center mt-3">
+    <button id="loadMoreVisibleBtn" type="button" class="btn btn-outline-primary" disabled="@(!Model.HasMore)">
+        @(!Model.HasMore ? "Đã hiển thị tất cả" : "Tải thêm")
+    </button>
+</div>
+
+<div class="modal fade" id="visibleListingImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <img id="visibleListingImagePreview" class="img-fluid rounded" src="" alt="listing image" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const bodyEl = document.getElementById('visibleListingBody');
+            const loadMoreBtn = document.getElementById('loadMoreVisibleBtn');
+            const token = localStorage.getItem('tin_tot_token');
+            const imageModal = new bootstrap.Modal(document.getElementById('visibleListingImageModal'));
+            const imagePreview = document.getElementById('visibleListingImagePreview');
+
+            let currentPage = @Model.Page;
+            const pageSize = @Model.PageSize;
+            const totalCount = @Model.TotalCount;
+            let loadedCount = @Model.Listings.Count;
+
+            const authHeaders = () => token
+                ? { Authorization: `Bearer ${token}` }
+                : {};
+
+
+            const refreshRowOrder = () => {
+                bodyEl.querySelectorAll('tr').forEach((row, index) => {
+                    const orderCell = row.querySelector('.listing-order');
+                    if (orderCell) {
+                        orderCell.textContent = String(index + 1);
+                    }
+                });
+            };
+
+            const updateLoadMoreState = () => {
+                if (loadedCount >= totalCount) {
+                    loadMoreBtn.disabled = true;
+                    loadMoreBtn.textContent = 'Đã hiển thị tất cả';
+                    return;
+                }
+
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Tải thêm';
+            };
+
+            const bindRowActions = (root = document) => {
+                root.querySelectorAll('.delete-visible-btn').forEach(btn => {
+                    btn.onclick = async () => {
+                        if (!confirm('Xác nhận xóa bài đăng đang hiển thị?')) return;
+
+                        const id = Number(btn.dataset.id);
+                        btn.disabled = true;
+                        try {
+                            const response = await fetch(`/admin/duyet-tin/dang-hien-thi/${id}`, {
+                                method: 'DELETE',
+                                headers: authHeaders()
+                            });
+
+                            const json = await response.json();
+                            if (!response.ok || !json.success) {
+                                throw new Error(json.message || 'Xóa tin thất bại.');
+                            }
+
+                            btn.closest('tr')?.remove();
+                            refreshRowOrder();
+                        } catch (error) {
+                            alert(error.message || 'Có lỗi khi xóa tin.');
+                            btn.disabled = false;
+                        }
+                    };
+                });
+
+                root.querySelectorAll('.listing-thumb').forEach(thumb => {
+                    thumb.onclick = () => {
+                        imagePreview.src = thumb.dataset.full || '';
+                        imageModal.show();
+                    };
+                });
+            };
+
+            bindRowActions(document);
+            refreshRowOrder();
+            updateLoadMoreState();
+
+            loadMoreBtn?.addEventListener('click', async () => {
+                if (loadMoreBtn.disabled) return;
+
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'Đang tải...';
+
+                currentPage += 1;
+
+                try {
+                    const response = await fetch(`/admin/tin-dang-hien-thi/tai-them?page=${currentPage}&pageSize=${pageSize}`, {
+                        headers: {
+                            ...authHeaders(),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Không thể tải thêm dữ liệu.');
+                    }
+
+                    const html = await response.text();
+                    const temp = document.createElement('tbody');
+                    temp.innerHTML = html;
+
+                    const newRows = temp.querySelectorAll('tr');
+                    if (newRows.length === 0) {
+                        loadedCount = totalCount;
+                        updateLoadMoreState();
+                        return;
+                    }
+
+                    newRows.forEach(row => bodyEl.appendChild(row));
+                    loadedCount += newRows.length;
+                    bindRowActions(bodyEl);
+                    refreshRowOrder();
+                    updateLoadMoreState();
+                } catch {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Tải thêm';
+                }
+            });
+        })();
+    </script>
+}

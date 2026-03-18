@@ -15,16 +15,19 @@ public class AdminListingModerationRepository : IAdminListingModerationRepositor
         _context = context;
     }
 
-    public async Task<(List<AdminPendingListingItemDto> Items, int TotalCount)> GetPendingListingsAsync(int page, int pageSize)
+    public Task<(List<AdminPendingListingItemDto> Items, int TotalCount)> GetPendingListingsAsync(int page, int pageSize)
+        => GetListingsByStatusAsync(status: 0, page, pageSize);
+
+    public async Task<(List<AdminPendingListingItemDto> Items, int TotalCount)> GetListingsByStatusAsync(int status, int page, int pageSize)
     {
-        var pendingQuery = _context.Listings
-            .AsNoTracking()
-            .Where(x => x.Status == 0);
+        var query = _context.Listings
+           .AsNoTracking()
+            .Where(x => x.Status == status);
 
-        var totalCount = await pendingQuery.CountAsync();
+        var totalCount = await query.CountAsync();
 
-        var listings = await pendingQuery
-            .OrderBy(x => x.CreatedAt)
+        var listings = await query
+            .OrderByDescending(x => x.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(x => new AdminPendingListingItemDto

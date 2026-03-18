@@ -37,7 +37,22 @@ public class AdminListingModerationService : IAdminListingModerationService
             Listings = items
         };
     }
+    public async Task<AdminPendingListingsPageDto> GetApprovedListingsAsync(int page = 1, int pageSize = 4)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 4;
 
+        var (items, totalCount) = await _repository.GetListingsByStatusAsync(status: 1, page, pageSize);
+
+        return new AdminPendingListingsPageDto
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            HasMore = page * pageSize < totalCount,
+            Listings = items
+        };
+    }
     public async Task ApproveListingAsync(int listingId)
     {
         var listing = await _repository.GetListingByIdWithUserAsync(listingId)
@@ -66,6 +81,22 @@ public class AdminListingModerationService : IAdminListingModerationService
 
         if (listing.Status != 0)
             throw new InvalidOperationException("Bài đăng này không ở trạng thái chờ duyệt.");
+        await DeleteListingAndNotifyOwnerAsync(listing);
+    }
+
+    public async Task DeleteApprovedListingAsync(int listingId)
+    {
+        var listing = await _repository.GetListingByIdWithUserAsync(listingId)
+                      ?? throw new KeyNotFoundException("Bài đăng không tồn tại.");
+
+        if (listing.Status != 1)
+            throw new InvalidOperationException("Bài đăng này không ở trạng thái đang hiển thị.");
+
+        await DeleteListingAndNotifyOwnerAsync(listing);
+    }
+
+    private async Task DeleteListingAndNotifyOwnerAsync(TinTot.Domain.Entities.Listing listing)
+    {
 
         var createdAtText = listing.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "không rõ thời gian";
         var listingTitle = string.IsNullOrWhiteSpace(listing.Title) ? $"#{listing.Id}" : listing.Title;

@@ -6,6 +6,7 @@ namespace TinTot.Application.Interfaces.Admin;
 public interface IAdminListingModerationRepository
 {
     Task<(List<AdminPendingListingItemDto> Items, int TotalCount)> GetPendingListingsAsync(int page, int pageSize);
+    Task<(List<AdminPendingListingItemDto> Items, int TotalCount)> GetListingsByStatusAsync(int status, int page, int pageSize);
     Task<Listing?> GetListingByIdWithUserAsync(int listingId);
     Task UpdateAsync(Listing listing);
     Task DeleteAsync(Listing listing);

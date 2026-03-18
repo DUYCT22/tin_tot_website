@@ -3,6 +3,7 @@
     var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
     var name = User.FindFirstValue(ClaimTypes.Name) ?? "Admin";
     var controllerName = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
     var isListingManager = role == "1" || role == "2";
 }
 <!DOCTYPE html>
@@ -24,9 +25,9 @@
                 <a class="nav-link @(controllerName == "Dashboard" ? "active" : "")" href="/admin/dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
                 @if (isListingManager)
                 {
-                    <a class="nav-link @(controllerName == "ListingApproval" ? "active" : "")" href="/admin/duyet-tin"><i class="fa-solid fa-list-check"></i> Duyệt Tin</a>
+                    <a class="nav-link @(controllerName == "ListingApproval" && actionName == "Index" ? "active" : "")" href="/admin/duyet-tin"><i class="fa-solid fa-list-check"></i> Duyệt Tin</a>
+                    <a class="nav-link @(controllerName == "ListingApproval" && actionName == "Visible" ? "active" : "")" href="/admin/tin-dang-hien-thi"><i class="fa-solid fa-eye"></i> Tin đang hiện</a>
                 }
-                <a class="nav-link" href="#"><i class="fa-solid fa-eye"></i> Tin đang hiện</a>
                 <a class="nav-link" href="#"><i class="fa-solid fa-users"></i> Người dùng</a>
                 <a class="nav-link" href="#"><i class="fa-solid fa-image"></i> Banner</a>
                 <a class="nav-link" href="#"><i class="fa-solid fa-folder-tree"></i> Danh mục</a>
