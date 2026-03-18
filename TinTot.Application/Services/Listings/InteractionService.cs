@@ -62,7 +62,7 @@ namespace TinTot.Application.Services.Listings
                     sellerId.Value,
                     userId,
                     listingId,
-                    $"{actor} đã lưu tin \"{listingTitle}\" của bạn vào yêu thích.");
+                    $"💙 {actor} đã lưu tin \"{listingTitle}\" của bạn vào yêu thích.");
             }
             return "Đã thêm vào yêu thích.";
         }
@@ -98,7 +98,7 @@ namespace TinTot.Application.Services.Listings
                 sellerId,
                 userId,
                 null,
-                $"{actor} vừa theo dõi bạn.");
+                $"👤 {actor} vừa theo dõi bạn.");
             return "Theo dõi người bán thành công.";
         }
 

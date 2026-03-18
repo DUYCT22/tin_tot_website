@@ -192,47 +192,47 @@
             });
         });
 
-                  document.querySelectorAll('.btn-delete-listing').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const resultConfirm = await Swal.fire({
-                    title: 'Xác nhận',
-                    text: 'Bạn có chắc muốn xóa bài đăng này?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Xóa',
-                    cancelButtonText: 'Hủy',
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6'
-                });
+        //           document.querySelectorAll('.btn-delete-listing').forEach(btn => {
+        //     btn.addEventListener('click', async () => {
+        //         const resultConfirm = await Swal.fire({
+        //             title: 'Xác nhận',
+        //             text: 'Bạn có chắc muốn xóa bài đăng này?',
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Xóa',
+        //             cancelButtonText: 'Hủy',
+        //             confirmButtonColor: '#d33',
+        //             cancelButtonColor: '#3085d6'
+        //         });
 
-                if (!resultConfirm.isConfirmed) return;
+        //         if (!resultConfirm.isConfirmed) return;
 
-                const id = btn.dataset.id;
-                const response = await fetch(`/api/listings/${id}`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+        //         const id = btn.dataset.id;
+        //         const response = await fetch(`/api/listings/${id}`, {
+        //             method: 'DELETE',
+        //             headers: { Authorization: `Bearer ${token}` }
+        //         });
 
-                const result = await response.json();
+        //         const result = await response.json();
 
-                if (!response.ok) {
-                    Swal.fire({
-                        title: 'Lỗi',
-                        text: result.message || 'Không thể xóa bài đăng.',
-                        icon: 'error'
-                    });
-                    return;
-                }
+        //         if (!response.ok) {
+        //             Swal.fire({
+        //                 title: 'Lỗi',
+        //                 text: result.message || 'Không thể xóa bài đăng.',
+        //                 icon: 'error'
+        //             });
+        //             return;
+        //         }
 
-                Swal.fire({
-                    title: 'Thành công',
-                    text: 'Bài đăng đã được xóa.',
-                    icon: 'success'
-                }).then(() => {
-                    window.location.reload();
-                });
-            });
-        });
+        //         Swal.fire({
+        //             title: 'Thành công',
+        //             text: 'Bài đăng đã được xóa.',
+        //             icon: 'success'
+        //         }).then(() => {
+        //             window.location.reload();
+        //         });
+        //     });
+        // });
 
             const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
             const editCategoryId = document.getElementById('editCategoryId');

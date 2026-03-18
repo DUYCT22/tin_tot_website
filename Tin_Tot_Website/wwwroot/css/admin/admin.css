@@ -97,3 +97,32 @@
     overflow-y: auto;
     background: #f8f9fa;
 }
+}
+
+.admin-pending-table td,
+.admin-pending-table th {
+    vertical-align: top;
+}
+
+.listing-image-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 96px;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.listing-thumb img {
+    width: 96px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.listing-detail-cell,
+.listing-location-cell {
+    max-height: 96px;
+    overflow: auto;
+}

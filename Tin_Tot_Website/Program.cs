@@ -72,6 +72,7 @@ builder.Services.AddScoped<IListingImageService, ListingImageService>();
 builder.Services.AddScoped<IInteractionService, InteractionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IAdminListingModerationService, AdminListingModerationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IHomeQueryService, HomeQueryService>();
@@ -84,6 +85,7 @@ builder.Services.AddScoped<IPublicListingReadRepository, PublicListingReadReposi
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
+builder.Services.AddScoped<IAdminListingModerationRepository, AdminListingModerationRepository>();
 builder.Services.AddScoped<IListingRepository, ListingRepository>();
 builder.Services.AddScoped<IListingImageRepository, ListingImageRepository>();
 builder.Services.AddScoped<IInteractionRepository, InteractionRepository>();
@@ -136,8 +138,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnlyPolicy", policy => policy.RequireRole("1"));
     options.AddPolicy("ListingManagePolicy", policy => policy.RequireRole("1", "2"));
     options.AddPolicy("UserManagePolicy", policy => policy.RequireRole("1", "3"));
-    options.AddPolicy("BannerManagePolicy", policy => policy.RequireRole("1"));
-    options.AddPolicy("CategoryManagePolicy", policy => policy.RequireRole("1"));
     options.AddPolicy("AdminPortalAccessPolicy", policy => policy.RequireRole("1", "2", "3"));
 });
 var redisConnection = builder.Configuration["Redis:Connection"];

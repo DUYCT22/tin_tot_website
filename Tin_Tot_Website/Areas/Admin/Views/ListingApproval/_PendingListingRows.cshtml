@@ -1,0 +1,40 @@
+﻿@model IReadOnlyList<TinTot.Application.DTOs.Admin.AdminPendingListingItemDto>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td class="fw-semibold">@item.Title</td>
+        <td>
+            @if (!item.ImageUrls.Any())
+            {
+                <span class="text-muted">Không có ảnh</span>
+            }
+            else
+            {
+                <div class="listing-image-strip">
+                    @foreach (var imageUrl in item.ImageUrls.Take(4))
+                    {
+                        <button type="button" class="listing-thumb btn p-0 border-0" data-full="@imageUrl">
+                            <img src="@imageUrl" alt="@item.Title" />
+                        </button>
+                    }
+                </div>
+            }
+        </td>
+        <td>
+            <div class="listing-detail-cell">@Html.Raw(item.Description)</div>
+        </td>
+        @* <td>
+            <div class="listing-location-cell">@item.Location</div>
+        </td> *@
+        <td>@(item.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "")</td>
+        @* <td>@item.CategoryName</td> *@
+        <td>@item.PosterName</td>
+        <td>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-success btn-sm approve-btn" data-id="@item.ListingId">Duyệt</button>
+                <button type="button" class="btn btn-danger btn-sm reject-btn" data-id="@item.ListingId">Xóa</button>
+            </div>
+        </td>
+    </tr>
+}
